@@ -1,0 +1,4 @@
+placement: top
+animation: shift-away
+trigger: 'mouseenter focus'
+color: base-900

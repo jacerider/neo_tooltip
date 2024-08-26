@@ -1,0 +1,31 @@
+.tippy-box {
+  &[data-placement$='start'] > .tippy-arrow {
+    transform: translate(5px) !important;
+  }
+  &[data-placement$='end'] > .tippy-arrow {
+    right: 0 !important;
+    left: auto !important;
+    transform: translate(-5px) !important;
+  }
+}
+
+.tippy-box[data-theme~='neo'] {
+  background-color: rgb(var(--tooltip-bg));
+
+  &[data-placement^='top'] > .tippy-arrow::before {
+    border-top-color: rgb(var(--tooltip-bg));
+  }
+  &[data-placement^='bottom'] > .tippy-arrow::before {
+    border-bottom-color: rgb(var(--tooltip-bg));
+  }
+  &[data-placement^='left'] > .tippy-arrow::before {
+    border-left-color: rgb(var(--tooltip-bg));
+  }
+  &[data-placement^='right'] > .tippy-arrow::before {
+    border-right-color: rgb(var(--tooltip-bg));
+  }
+  .tippy-content {
+    @apply text-xs;
+    color: rgb(var(--tooltip-text));
+  }
+}

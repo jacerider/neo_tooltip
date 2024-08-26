@@ -1,0 +1,21 @@
+tooltip:
+  version: VERSION
+  neo: { group: contrib }
+  css:
+    component:
+      src/css/tooltip.scss: { minified: true }
+  js:
+    src/js/tooltip.ts: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - neo_tooltip/library.tippy
+
+# Libraries
+
+library.tippy:
+  version: 6.3.7
+  js:
+    dist/js/tippy-bundle.umd.min.js: {minified: true}
+  dependencies:
+    - neo/library.popper

@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Neo | Tooltip module.
+ */
+
+use Drupal\Core\Asset\AttachedAssetsInterface;
+
+/**
+ * Implements hook_js_settings_alter().
+ */
+function neo_tooltip_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+  /** @var \Drupal\neo_tooltip\Settings\Settings $config */
+  $config = \Drupal::service('neo_tooltip.settings')->getActive();
+  $settings['neoTooltip'] = array_diff_key($config->getValues(), ['color' => '']);
+  $settings['neoTooltip']['dir'] = \Drupal::moduleHandler()->getModule('neo_tooltip')->getPath();
+}
+
+/**
+ * Implements hook_preprocess_form_element_label().
+ */
+function neo_tooltip_preprocess_form_element__type_radio(&$variables) {
+  if (!empty($variables['element']['#title']) && is_array($variables['element']['#title']) && !empty($variables['element']['#title']['#tooltip'])) {
+    $variables['attributes']['class'][] = 'use-neo-tooltip';
+    $variables['attributes']['data-tippy-content'] = $variables['element']['#title']['#tooltip'];
+    $variables['#attached']['library'][] = 'neo_tooltip/tooltip';
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "jacerider/neo_tooltip",
+  "description": "Provide tooltip API for elements and fields.",
+  "type": "drupal-module",
+  "license": "proprietary",
+  "homepage": "https://github.com/jacerider/neo_tooltip",
+  "authors": [
+    {
+      "name": "Cyle Carlson (JaceRider)",
+      "email": "jacerider@gmail.com",
+      "role": "Maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/jacerider/neo_tooltip/issues",
+    "source": "https://github.com/jacerider/neo_tooltip"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "drupal/core": "^10.3",
+    "jacerider/neo": "^1"
+  }
+}

@@ -1,0 +1,13 @@
+services:
+  neo_tooltip.twig_extension:
+    class: Drupal\neo_tooltip\TwigExtension
+    tags:
+      - { name: twig.extension, priority: 100 }
+  neo_tooltip.settings:
+    parent: neo_settings.repository
+    arguments: ['neo_tooltip']
+  neo_tooltip.neo_build_inline_event_subscriber:
+    class: '\Drupal\neo_tooltip\EventSubscriber\NeoBuildInlineEventSubscriber'
+    arguments: ['@neo_tooltip.settings']
+    tags:
+      - { name: 'event_subscriber' }

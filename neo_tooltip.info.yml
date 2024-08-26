@@ -1,0 +1,7 @@
+name: 'Neo | Tooltip'
+type: module
+description: 'Provide tooltip API for elements and fields.'
+package: Neo
+core_version_requirement: ^10.3
+dependencies:
+  - neo:neo
