@@ -109,11 +109,4 @@ class Settings extends SettingsBase {
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function exists() {
-    return FALSE;
-  }
-
 }

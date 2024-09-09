@@ -16,7 +16,6 @@ class TwigExtension extends AbstractExtension {
    */
   public function getFilters():array {
     return [
-      new TwigFilter('neo_tooltip', [$this, 'prepareTooltip']),
       new TwigFilter('neo_tooltip_trigger', [$this, 'prepareTrigger']),
       new TwigFilter('neo_tooltip_content', [$this, 'prepareContent']),
     ];
@@ -61,10 +60,6 @@ class TwigExtension extends AbstractExtension {
         '#markup' => $content,
       ];
     }
-    // if (!isset($content['#type'])) {
-    //   $content['#type'] = 'html_tag';
-    //   $content['#tag'] = 'div';
-    // }
     foreach ($tooltip->getAttachments() as $attachmentType => $attachments) {
       foreach ($attachments as $attachment) {
         $content['#attached'][$attachmentType][] = $attachment;
