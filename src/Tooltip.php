@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Drupal\neo_tooltip;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Template\Attribute;
 use Drupal\neo_settings\SettingsTrait;
@@ -708,13 +709,13 @@ class Tooltip {
   /**
    * Apply the tooltip to a string.
    *
-   * @param string $string
+   * @param string|MarkupInterface $string
    *   The string.
    *
    * @return array
    *   The renderable array.
    */
-  public function buildFromString(string $string) {
+  public function buildFromString(string|MarkupInterface $string) {
     $build = [
       '#type' => 'markup',
       '#markup' => $string,
