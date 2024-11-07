@@ -613,6 +613,10 @@ class Tooltip {
         '#type' => 'html_tag',
         '#tag' => 'a',
         '#attributes' => [
+          'class' => [
+            'cursor-help',
+            'text-inherit',
+          ],
           'href' => '',
           'onclick' => 'return false;',
         ],
