@@ -44,8 +44,8 @@ class NeoBuildInlineEventSubscriber implements EventSubscriberInterface {
     if ($color = $this->settings->getValue('color')) {
       $event->addCssValue('--tooltip-bg', 'var(--color-' . $color . ')');
       $event->addCssValue('--tooltip-text', 'var(--color-' . str_replace('-', '-content-', $color) . ')');
-      $event->addCacheTags(['config:neo_tooltip.settings']);
     }
+    $event->addCacheTags(['config:neo_tooltip.settings']);
   }
 
   /**

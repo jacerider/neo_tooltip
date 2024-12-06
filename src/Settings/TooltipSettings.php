@@ -11,7 +11,7 @@ use Drupal\neo_tooltip\Tooltip;
  *
  * @Settings(
  *   id = "neo_tooltip",
- *   label = @Translation("Neo Tooltip"),
+ *   label = @Translation("Tooltip"),
  *   config_name = "neo_tooltip.settings",
  *   menu_title = @Translation("Tooltip"),
  *   route = "/admin/config/neo/neo-tooltip",
@@ -21,7 +21,7 @@ use Drupal\neo_tooltip\Tooltip;
  *   variation_ordering = false,
  * )
  */
-class Settings extends SettingsBase {
+class TooltipSettings extends SettingsBase {
 
   /**
    * {@inheritdoc}
