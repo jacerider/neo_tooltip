@@ -85,10 +85,18 @@ class Tooltip {
    *
    * @param mixed $content
    *   The content of the tooltip.
+   * @param array $options
+   *   An array of options.
    */
-  public function __construct($content = NULL) {
+  public function __construct($content = NULL, array $options = []) {
     if ($content) {
       $this->setContent($content);
+    }
+    foreach ($options as $key => $value) {
+      $method = 'set' . ucfirst($key);
+      if (method_exists($this, $method)) {
+        $this->$method($value);
+      }
     }
   }
 
@@ -696,6 +704,9 @@ class Tooltip {
     $build['#attributes'] = $build['#attributes'] ?? [];
     $attribute = new Attribute($build['#attributes']);
     $attribute->merge($this->getAttributes());
+    if ($this->content && is_array($this->content)) {
+      $attribute->setAttribute('data-tippy-template', 'true');
+    }
     $build['#attributes'] = $attribute->toArray();
     foreach ($this->getAttachments() as $attachmentType => $attachments) {
       foreach ($attachments as $attachment) {
