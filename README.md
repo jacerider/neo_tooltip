@@ -79,6 +79,26 @@ $tooltip = new Tooltip('Tooltip content');
 $tooltip->applyTo($build['markup']);
 ```
 
+You can also use the use a helper trait in a class.
+
+```php
+use Drupal\neo_tooltip\TooltipTrait;
+
+// Trigger will be a string or renderable element.
+$this->tooltip('Trigger', [
+  '#markup' => 'Content',
+], [
+  'placement' => 'top-start',
+]);
+
+// Trigger will be a link.
+$this->tooltipAsLink('Trigger', [
+  '#markup' => 'Content',
+], [
+  'placement' => 'top-start',
+])
+```
+
 
 OPTIONS
 -----
