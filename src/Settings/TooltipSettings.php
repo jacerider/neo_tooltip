@@ -34,7 +34,6 @@ class TooltipSettings extends SettingsBase {
     $form = parent::buildForm($form, $form_state);
 
     $tooltip = new Tooltip('Preview Tooltip');
-
     $form['preview'] = [
       '#markup' => '<div class="btn w-full text-center">' . $this->t('Preview') . '</div>',
     ];
