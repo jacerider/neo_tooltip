@@ -24,23 +24,8 @@ class TwigExtension extends AbstractExtension {
   /**
    * Add classes to a renderable array.
    */
-  public function prepareTrigger(Attribute $attribute, array $config = []) {
-    $tooltip = new Tooltip($config['content'] ?? '');
-    if (!empty($config['theme'])) {
-      $tooltip->setTheme($config['theme']);
-    }
-    if (!empty($config['placement'])) {
-      $tooltip->setPlacement($config['placement']);
-    }
-    if (!empty($config['animation'])) {
-      $tooltip->setAnimation($config['animation']);
-    }
-    if (!empty($config['trigger'])) {
-      $tooltip->setTrigger($config['trigger']);
-    }
-    if (!empty($config['arrow'])) {
-      $tooltip->setArrow($config['arrow']);
-    }
+  public function prepareTrigger(Attribute $attribute, array $options = []) {
+    $tooltip = new Tooltip($config['content'] ?? '', $options);
     $tooltip->getAttributes();
     $tooltip->applyToAttribute($attribute);
     if (empty($config['content'])) {

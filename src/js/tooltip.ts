@@ -30,18 +30,20 @@
         const triggerToNearest = el.getAttribute('data-tippy-trigger-nearest');
         if (triggerToNearest) {
           const closest = el.closest('a, input, button');
-          if (closest) {
-            options.triggerTarget = closest;
+          if (closest && closest !== el) {
+            options.triggerTarget = [closest];
           }
           else {
-            const closestFormElements = [];
-            const closestFormElementWrapper = el.closest('.form-item');
-            if (closestFormElementWrapper) {
-              closestFormElements.push(closestFormElementWrapper.querySelector('input'));
-              closestFormElements.push(closestFormElementWrapper.querySelector('label'));
+            // Bind to some parent form elements.
+            const closestLabel = el.closest('label');
+            if (closestLabel) {
+              options.triggerTarget = [closestLabel];
             }
-            if (closestFormElements.length) {
-              options.triggerTarget = closestFormElements;
+            else {
+              const closestInput = el.closest('input');
+              if (closestInput) {
+                options.triggerTarget = [closestInput];
+              }
             }
           }
         }

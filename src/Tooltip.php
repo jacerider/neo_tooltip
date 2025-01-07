@@ -62,9 +62,9 @@ class Tooltip {
   /**
    * The delay of the tooltip.
    *
-   * @var int
+   * @var int|string
    */
-  protected int $delay = 0;
+  protected int|string $delay = 0;
 
   /**
    * The trigger of the tooltip.
@@ -497,22 +497,22 @@ class Tooltip {
   /**
    * Returns the tooltip delay.
    *
-   * @return int
+   * @return int|string
    *   The delay value.
    */
-  public function getDelay():int {
+  public function getDelay():int|string {
     return $this->delay;
   }
 
   /**
    * Sets the delay.
    *
-   * @param int $value
-   *   The delay value.
+   * @param int|string $value
+   *   The delay value. Example: '500' or '[500, 100]'.
    *
    * @return $this
    */
-  public function setDelay(int $value):self {
+  public function setDelay(int|string $value):self {
     $this->delay = $value;
     return $this;
   }
@@ -624,6 +624,7 @@ class Tooltip {
           'class' => [
             'cursor-help',
             'text-inherit',
+            'hover:text-inherit',
           ],
           'href' => '',
           'onclick' => 'return false;',
@@ -698,16 +699,19 @@ class Tooltip {
    *
    * @param array $build
    *   The renderable array.
+   * @param string $attributeProperty
+   *   (optional) The property of the trigger element that will contain the
+   *   tooltip attributes. Defaults to '#attributes'.
    */
-  public function applyTo(array &$build):void {
+  public function applyTo(array &$build, $attributeProperty = '#attributes'):void {
     $build = $this->buildTrigger($build);
-    $build['#attributes'] = $build['#attributes'] ?? [];
-    $attribute = new Attribute($build['#attributes']);
+    $build[$attributeProperty] = $build[$attributeProperty] ?? [];
+    $attribute = new Attribute($build[$attributeProperty]);
     $attribute->merge($this->getAttributes());
     if ($this->content && is_array($this->content)) {
       $attribute->setAttribute('data-tippy-template', 'true');
     }
-    $build['#attributes'] = $attribute->toArray();
+    $build[$attributeProperty] = $attribute->toArray();
     foreach ($this->getAttachments() as $attachmentType => $attachments) {
       foreach ($attachments as $attachment) {
         $build['#attached'][$attachmentType][] = $attachment;
