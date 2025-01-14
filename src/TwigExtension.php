@@ -25,10 +25,10 @@ class TwigExtension extends AbstractExtension {
    * Add classes to a renderable array.
    */
   public function prepareTrigger(Attribute $attribute, array $options = []) {
-    $tooltip = new Tooltip($config['content'] ?? '', $options);
+    $tooltip = new Tooltip($options['content'] ?? '', $options);
     $tooltip->getAttributes();
     $tooltip->applyToAttribute($attribute);
-    if (empty($config['content'])) {
+    if (empty($options['content'])) {
       $attribute->setAttribute('data-tippy-template', 'true');
     }
     return $attribute;
