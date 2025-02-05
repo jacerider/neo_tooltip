@@ -1,33 +1,33 @@
-(function(l, s, c) {
-  const p = function(n) {
-    let t = document.querySelector(`link[neo-tooltip-animation-${n}]`);
-    t || (t = document.createElement("link"), t.rel = "stylesheet", t.type = "text/css", t.media = "screen", t.href = "/" + s.neoTooltip.dir + `/dist/css/tippy-${n}.css`, t.setAttribute(`neo-tooltip-animation-${n}`, ""), document.getElementsByTagName("head")[0].appendChild(t));
+(function(l, r, p) {
+  const c = function(i) {
+    let t = document.querySelector(`link[neo-tooltip-animation-${i}]`);
+    t || (t = document.createElement("link"), t.rel = "stylesheet", t.type = "text/css", t.media = "screen", t.href = "/" + r.neoTooltip.dir + `/dist/css/tippy-${i}.css`, t.setAttribute(`neo-tooltip-animation-${i}`, ""), document.getElementsByTagName("head")[0].appendChild(t));
   };
   l.behaviors.neoTooltip = {
-    attach: (n) => {
-      typeof s.neoTooltip > "u" || c("neo.tooltip", ".use-neo-tooltip", n).forEach((t) => {
-        const i = Object.assign({}, {
+    attach: (i) => {
+      typeof r.neoTooltip > "u" || p("neo.tooltip", ".use-neo-tooltip", i).forEach((t) => {
+        const o = Object.assign({}, {
           theme: "neo",
           inertia: !0
-        }, s.neoTooltip), a = t.getAttribute("data-tippy-animation") || i.animation;
-        if (a && ["shift-toward", "shift-away", "scale", "perspective"].includes(a) && p(a), t.getAttribute("data-tippy-trigger-nearest")) {
-          const o = t.closest("a, input, button");
-          if (o && o !== t)
-            i.triggerTarget = [o];
+        }, r.neoTooltip), s = t.getAttribute("data-tippy-animation") || o.animation;
+        if (s && ["shift-toward", "shift-away", "scale", "perspective"].includes(s) && c(s), t.getAttribute("data-tippy-trigger-nearest")) {
+          const n = t.closest("a, input, button");
+          if (n && n !== t)
+            o.triggerTarget = [n];
           else {
             const e = t.closest("label");
             if (e)
-              i.triggerTarget = [e];
+              o.triggerTarget = [e];
             else {
-              const r = t.closest("input");
-              r && (i.triggerTarget = [r]);
+              const a = t.closest("input");
+              a && (o.triggerTarget = [a]);
             }
           }
         }
-        t.getAttribute("data-tippy-template") && (i.allowHTML = !0, i.content = (o) => {
-          let e = o.nextElementSibling;
-          return e && e.tagName === "TEMPLATE" || (e = o.querySelector(".neo-tooltip-template"), e && e.tagName === "TEMPLATE") ? e.innerHTML : "";
-        }), tippy(t, i);
+        t.getAttribute("data-tippy-template") && (o.allowHTML = !0, o.content = (n) => {
+          let e = n.nextElementSibling;
+          return e && e.tagName === "TEMPLATE" || (e = n.querySelector(".neo-tooltip-template"), e && e.tagName === "TEMPLATE") ? e.innerHTML : "";
+        }), o.onShow = (n) => n.props.content.length != 0, tippy(t, o);
       });
     }
   };

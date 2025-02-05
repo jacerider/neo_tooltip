@@ -62,6 +62,12 @@
             return '';
           };
         }
+        options.onShow = (instance:any) => {
+          if (instance.props.content.length == 0) {
+            return false;
+          }
+          return true;
+        };
         tippy(el, options);
       });
     }
