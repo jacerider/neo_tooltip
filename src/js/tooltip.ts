@@ -22,6 +22,7 @@
         const options:any = Object.assign({}, {
           theme: 'neo',
           inertia: true,
+          allowHtml: true,
         }, drupalSettings.neoTooltip);
         const animation = el.getAttribute('data-tippy-animation') || options.animation;
         if (animation && ['shift-toward', 'shift-away', 'scale', 'perspective'].includes(animation)) {
@@ -49,7 +50,6 @@
         }
         const isTemplate = el.getAttribute('data-tippy-template');
         if (isTemplate) {
-          options['allowHTML'] = true;
           options['content'] = (ref:HTMLElement) => {
             let template = ref.nextElementSibling;
             if (template && template.tagName === 'TEMPLATE') {
