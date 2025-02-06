@@ -24,6 +24,9 @@ class ElementProcess {
         'delay' => '[300,100]',
         'triggerToNearestFocusableElement' => TRUE,
       ];
+      if (is_string($element['#description'])) {
+        $element['#description'] = html_entity_decode($element['#description']);
+      }
       $tooltip = new Tooltip($element['#description'], $options);
       $tooltip->applyTo($element);
       $element['#description'] = NULL;
