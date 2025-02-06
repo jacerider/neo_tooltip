@@ -83,8 +83,7 @@ class TooltipSettings extends SettingsBase {
     $form['theme_boilerplate']['scss'] = [
       '#type' => 'html_tag',
       '#tag' => 'pre',
-      '#value' => "
-.tippy-box[data-theme~='neo'] {
+      '#value' => ".tippy-box[data-theme~='neo'] {
   @apply bg-white text-black shadow-lg;
 
   &[data-placement^='top'] > .tippy-arrow::before {
@@ -102,8 +101,7 @@ class TooltipSettings extends SettingsBase {
   .tippy-content {
     @apply p-6 text-base;
   }
-}
-      ",
+}",
     ];
     return $form;
   }
