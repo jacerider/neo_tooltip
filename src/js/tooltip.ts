@@ -14,6 +14,8 @@
   }
 
   Drupal.behaviors.neoTooltip = {
+    instances: [] as any,
+
     attach: (context:HTMLElement) => {
       if (typeof drupalSettings.neoTooltip === 'undefined') {
         return;
@@ -68,7 +70,19 @@
           }
           return true;
         };
-        tippy(el, options);
+        Drupal.behaviors.neoTooltip.instances.push(tippy(el, options));
+      });
+    },
+
+    disableAll: () => {
+      Drupal.behaviors.neoTooltip.instances.forEach((instance:any) => {
+        instance.disable();
+      });
+    },
+
+    enableAll: () => {
+      Drupal.behaviors.neoTooltip.instances.forEach((instance:any) => {
+        instance.enable();
       });
     }
   };

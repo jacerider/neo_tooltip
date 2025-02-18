@@ -109,7 +109,7 @@ class Tooltip {
    * @return $this
    */
   public function setContent(mixed $content):self {
-    if ($content instanceof FormattableMarkup) {
+    if ($content instanceof MarkupInterface) {
       $content = (string) $content;
     }
     $this->content = $content;
