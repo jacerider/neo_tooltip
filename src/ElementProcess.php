@@ -17,6 +17,9 @@ class ElementProcess {
    */
   public static function processInput(&$element, FormStateInterface $form_state, &$complete_form) {
     // Apply tooltip to all elements with a description.
+    if (!empty($element['#neo_tooltip_built'])) {
+      return $element;
+    }
     if (!empty($element['#description']) && (is_string($element['#description']) || $element['#description'] instanceof MarkupInterface)) {
       $options = isset($element['#tooltip']) && is_array($element['#tooltip']) ? $element['#tooltip'] : [];
       $options += [
@@ -24,12 +27,9 @@ class ElementProcess {
         'delay' => '[300,100]',
         'triggerToNearestFocusableElement' => TRUE,
       ];
-      if (is_string($element['#description'])) {
-        $element['#description'] = html_entity_decode($element['#description']);
-      }
       $tooltip = new Tooltip($element['#description'], $options);
-      $tooltip->applyTo($element);
       $element['#description'] = NULL;
+      $tooltip->applyTo($element);
     }
     return $element;
   }

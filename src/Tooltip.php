@@ -32,6 +32,13 @@ class Tooltip {
   protected mixed $content = '';
 
   /**
+   * Whether the content is a template.
+   *
+   * @var bool
+   */
+  protected bool $contentAsTemplate = FALSE;
+
+  /**
    * The theme of the tooltip.
    *
    * @var string
@@ -109,8 +116,9 @@ class Tooltip {
    * @return $this
    */
   public function setContent(mixed $content):self {
-    if ($content instanceof MarkupInterface) {
-      $content = (string) $content;
+    if (is_array($content) || $content instanceof MarkupInterface) {
+      $this->contentAsTemplate = TRUE;
+      // $content = (string) $content;
     }
     $this->content = $content;
     return $this;
@@ -588,7 +596,7 @@ class Tooltip {
     if ($this->triggerToNearestFocusable) {
       $attributes['data-tippy-trigger-nearest'] = 'true';
     }
-    if ($this->content && is_string($this->content)) {
+    if ($this->content && !$this->contentAsTemplate) {
       $attributes['data-tippy-content'] = $this->content;
     }
     return new Attribute($attributes);
@@ -636,6 +644,7 @@ class Tooltip {
         unset($build['#attributes']);
       }
     }
+    $build['#neo_tooltip_built'] = TRUE;
     return $build;
   }
 
@@ -650,14 +659,11 @@ class Tooltip {
    */
   public function buildTemplate(mixed $content):array {
     return [
-      '#type' => 'html_tag',
-      '#tag' => 'template',
-      '#attributes' => [
-        'class' => [
-          'neo-tooltip-template',
-        ],
+      '#type' => 'inline_template',
+      '#template' => '<template class="neo-tooltip-template">{{ content }}</template>',
+      '#context' => [
+        'content' => $content,
       ],
-      'template' => $content,
     ];
   }
 
@@ -683,7 +689,7 @@ class Tooltip {
     $attribute = new Attribute($attributes);
     $attribute->merge($this->getAttributes());
     $attribute->removeAttribute('title');
-    if ($this->content && is_array($this->content)) {
+    if ($this->content && $this->contentAsTemplate) {
       $attribute->setAttribute('data-tippy-template', 'true');
       $link->setText([
         'trigger' => ['#markup' => $link->getText()],
@@ -708,20 +714,16 @@ class Tooltip {
     $build[$attributeProperty] = $build[$attributeProperty] ?? [];
     $attribute = new Attribute($build[$attributeProperty]);
     $attribute->merge($this->getAttributes());
-    if ($this->content && is_array($this->content)) {
-      $attribute->setAttribute('data-tippy-template', 'true');
+    if ($this->content && $this->contentAsTemplate) {
+      $id = 'tooltip-' . uniqid();
+      $attribute->setAttribute('data-tippy-template', $id);
+      $build['#attached']['drupalSettings']['neoTooltipTemplates'][$id] = is_array($this->content) ? \Drupal::service('renderer')->render($this->content) : $this->content;
     }
     $build[$attributeProperty] = $attribute->toArray();
     foreach ($this->getAttachments() as $attachmentType => $attachments) {
       foreach ($attachments as $attachment) {
         $build['#attached'][$attachmentType][] = $attachment;
       }
-    }
-    if ($this->content && is_array($this->content)) {
-      $build = [
-        'trigger' => $build,
-        'template' => $this->buildTemplate($this->content),
-      ];
     }
   }
 

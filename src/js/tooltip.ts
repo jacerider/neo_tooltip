@@ -24,7 +24,6 @@
         const options:any = Object.assign({}, {
           theme: 'neo',
           inertia: true,
-          allowHtml: true,
         }, drupalSettings.neoTooltip);
         const animation = el.getAttribute('data-tippy-animation') || options.animation;
         if (animation && ['shift-toward', 'shift-away', 'scale', 'perspective'].includes(animation)) {
@@ -50,19 +49,11 @@
             }
           }
         }
-        const isTemplate = el.getAttribute('data-tippy-template');
-        if (isTemplate) {
-          options['content'] = (ref:HTMLElement) => {
-            let template = ref.nextElementSibling;
-            if (template && template.tagName === 'TEMPLATE') {
-              return template.innerHTML;
-            }
-            template = ref.querySelector('.neo-tooltip-template');
-            if (template && template.tagName === 'TEMPLATE') {
-              return template.innerHTML;
-            }
-            return '';
-          };
+        const template = el.getAttribute('data-tippy-template');
+        if (template && drupalSettings.neoTooltipTemplates && drupalSettings.neoTooltipTemplates[template]) {
+          options['allowHTML'] = true;
+          options['interactive'] = true;
+          options['content'] = drupalSettings.neoTooltipTemplates[template];
         }
         options.onShow = (instance:any) => {
           if (instance.props.content.length == 0) {
