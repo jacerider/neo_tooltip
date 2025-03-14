@@ -21,6 +21,9 @@ class ElementProcess {
       return $element;
     }
     if (!empty($element['#description']) && (is_string($element['#description']) || $element['#description'] instanceof MarkupInterface)) {
+      if (isset($element['#tooltip']) && $element['#tooltip'] === FALSE) {
+        return $element;
+      }
       $options = isset($element['#tooltip']) && is_array($element['#tooltip']) ? $element['#tooltip'] : [];
       $options += [
         'placement' => 'bottom-start',
