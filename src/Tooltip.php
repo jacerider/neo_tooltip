@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Drupal\neo_tooltip;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Template\Attribute;
