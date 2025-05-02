@@ -17,6 +17,8 @@
     instances: [] as any,
 
     attach: (context:HTMLElement) => {
+      Drupal.behaviors.neoTooltip.hideAll();
+
       if (typeof drupalSettings.neoTooltip === 'undefined') {
         return;
       }
@@ -24,6 +26,7 @@
         const options:any = Object.assign({}, {
           theme: 'neo',
           inertia: true,
+          maxWidth: 600,
         }, drupalSettings.neoTooltip);
         const animation = el.getAttribute('data-tippy-animation') || options.animation;
         if (animation && ['shift-toward', 'shift-away', 'scale', 'perspective'].includes(animation)) {
@@ -62,6 +65,12 @@
           return true;
         };
         Drupal.behaviors.neoTooltip.instances.push(tippy(el, options));
+      });
+    },
+
+    hideAll: () => {
+      Drupal.behaviors.neoTooltip.instances.forEach((instance:any) => {
+        instance.hide();
       });
     },
 

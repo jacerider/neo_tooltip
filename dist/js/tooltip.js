@@ -1,42 +1,47 @@
-(function(s, i, p) {
-  const f = function(e) {
-    let t = document.querySelector(`link[neo-tooltip-animation-${e}]`);
-    t || (t = document.createElement("link"), t.rel = "stylesheet", t.type = "text/css", t.media = "screen", t.href = "/" + i.neoTooltip.dir + `/dist/css/tippy-${e}.css`, t.setAttribute(`neo-tooltip-animation-${e}`, ""), document.getElementsByTagName("head")[0].appendChild(t));
+(function(i, n, p) {
+  const h = function(t) {
+    let e = document.querySelector(`link[neo-tooltip-animation-${t}]`);
+    e || (e = document.createElement("link"), e.rel = "stylesheet", e.type = "text/css", e.media = "screen", e.href = "/" + n.neoTooltip.dir + `/dist/css/tippy-${t}.css`, e.setAttribute(`neo-tooltip-animation-${t}`, ""), document.getElementsByTagName("head")[0].appendChild(e));
   };
-  s.behaviors.neoTooltip = {
+  i.behaviors.neoTooltip = {
     instances: [],
-    attach: (e) => {
-      typeof i.neoTooltip > "u" || p("neo.tooltip", ".use-neo-tooltip", e).forEach((t) => {
+    attach: (t) => {
+      i.behaviors.neoTooltip.hideAll(), !(typeof n.neoTooltip > "u") && p("neo.tooltip", ".use-neo-tooltip", t).forEach((e) => {
         const o = Object.assign({}, {
           theme: "neo",
           inertia: !0
-        }, i.neoTooltip), a = t.getAttribute("data-tippy-animation") || o.animation;
-        if (a && ["shift-toward", "shift-away", "scale", "perspective"].includes(a) && f(a), t.getAttribute("data-tippy-trigger-nearest")) {
-          const n = t.closest("a, input, button");
-          if (n && n !== t)
-            o.triggerTarget = [n];
+        }, n.neoTooltip), a = e.getAttribute("data-tippy-animation") || o.animation;
+        if (a && ["shift-toward", "shift-away", "scale", "perspective"].includes(a) && h(a), e.getAttribute("data-tippy-trigger-nearest")) {
+          const s = e.closest("a, input, button");
+          if (s && s !== e)
+            o.triggerTarget = [s];
           else {
-            const l = t.closest("label");
-            if (l)
-              o.triggerTarget = [l];
+            const r = e.closest("label");
+            if (r)
+              o.triggerTarget = [r];
             else {
-              const c = t.closest("input");
+              const c = e.closest("input");
               c && (o.triggerTarget = [c]);
             }
           }
         }
-        const r = t.getAttribute("data-tippy-template");
-        r && i.neoTooltipTemplates && i.neoTooltipTemplates[r] && (o.allowHTML = !0, o.interactive = !0, o.content = i.neoTooltipTemplates[r]), o.onShow = (n) => n.props.content.length != 0, s.behaviors.neoTooltip.instances.push(tippy(t, o));
+        const l = e.getAttribute("data-tippy-template");
+        l && n.neoTooltipTemplates && n.neoTooltipTemplates[l] && (o.allowHTML = !0, o.interactive = !0, o.content = n.neoTooltipTemplates[l]), o.onShow = (s) => s.props.content.length != 0, i.behaviors.neoTooltip.instances.push(tippy(e, o));
+      });
+    },
+    hideAll: () => {
+      i.behaviors.neoTooltip.instances.forEach((t) => {
+        t.hide();
       });
     },
     disableAll: () => {
-      s.behaviors.neoTooltip.instances.forEach((e) => {
-        e.disable();
+      i.behaviors.neoTooltip.instances.forEach((t) => {
+        t.disable();
       });
     },
     enableAll: () => {
-      s.behaviors.neoTooltip.instances.forEach((e) => {
-        e.enable();
+      i.behaviors.neoTooltip.instances.forEach((t) => {
+        t.enable();
       });
     }
   };
