@@ -9,7 +9,8 @@
       i.behaviors.neoTooltip.hideAll(), !(typeof n.neoTooltip > "u") && p("neo.tooltip", ".use-neo-tooltip", t).forEach((e) => {
         const o = Object.assign({}, {
           theme: "neo",
-          inertia: !0
+          inertia: !0,
+          maxWidth: 600
         }, n.neoTooltip), a = e.getAttribute("data-tippy-animation") || o.animation;
         if (a && ["shift-toward", "shift-away", "scale", "perspective"].includes(a) && h(a), e.getAttribute("data-tippy-trigger-nearest")) {
           const s = e.closest("a, input, button");
