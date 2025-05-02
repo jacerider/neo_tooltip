@@ -10,7 +10,6 @@
 }
 
 .tippy-box[data-theme~='neo'] {
-  min-width: 180px;
   background-color: rgb(var(--tooltip-bg));
 
   &[data-placement^='top'] > .tippy-arrow::before {
