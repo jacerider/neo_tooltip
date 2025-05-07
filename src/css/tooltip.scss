@@ -24,8 +24,27 @@
   &[data-placement^='right'] > .tippy-arrow::before {
     border-right-color: rgb(var(--tooltip-bg));
   }
+
   .tippy-content {
     @apply text-xs;
     color: rgb(var(--tooltip-text));
+  }
+
+  li {
+    @apply whitespace-nowrap;
+
+    a {
+      @apply block p-1;
+    }
+  }
+
+  a {
+    color: rgb(var(--tooltip-text));
+  }
+}
+
+.tippy-box[data-theme~='dropbutton'] {
+  .tippy-content {
+    @apply px-2 py-1;
   }
 }

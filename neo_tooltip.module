@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Asset\AttachedAssetsInterface;
+use Drupal\neo_tooltip\ElementPreRender;
 use Drupal\neo_tooltip\ElementProcess;
 
 /**
@@ -38,5 +39,13 @@ function neo_tooltip_element_info_alter(array &$info) {
     if (isset($element['#process']) && !empty($element['#input'])) {
       $element['#process'][] = [ElementProcess::class, 'processInput'];
     }
+  }
+}
+
+function neo_tooltip_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'core') {
+    $libraries['drupal.dropbutton']['js'] = [];
+    $libraries['drupal.dropbutton']['css'] = [];
+    $libraries['drupal.dropbutton']['dependencies'][] = 'neo_tooltip/dropbutton';
   }
 }

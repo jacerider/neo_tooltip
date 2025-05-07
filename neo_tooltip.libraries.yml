@@ -11,6 +11,14 @@ tooltip:
     - core/drupalSettings
     - neo_tooltip/library.tippy
 
+dropbutton:
+  version: VERSION
+  neo: { group: contrib }
+  js:
+    src/js/dropbutton.ts: {}
+  dependencies:
+    - neo_tooltip/tooltip
+
 # Libraries
 
 library.tippy:
