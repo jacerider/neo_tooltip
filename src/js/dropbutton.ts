@@ -69,30 +69,6 @@
     }
   };
 
-  function hasNonVisibleOverflowParent(element: HTMLElement): boolean {
-    // Start with the element's parent
-    let currentNode: HTMLElement | null = element.parentElement;
-
-    // Traverse up the DOM tree
-    while (currentNode) {
-      // Get computed style of the current parent
-      const computedStyle = window.getComputedStyle(currentNode);
-      const overflowX = computedStyle.overflowX;
-      const overflowY = computedStyle.overflowY;
-
-      // Check if either overflow-x or overflow-y is not "visible"
-      if (overflowX !== 'visible' || overflowY !== 'visible') {
-        return true;
-      }
-
-      // Move up to the next parent
-      currentNode = currentNode.parentElement;
-    }
-
-    // No parent with non-visible overflow found
-    return false;
-  }
-
 })(Drupal, drupalSettings, once);
 
 export {};
