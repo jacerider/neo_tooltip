@@ -643,6 +643,17 @@ class Tooltip {
         unset($build['#attributes']);
       }
     }
+    elseif (in_array($build['#type'], [
+      'submit',
+      'button',
+    ]) && !empty($build['#disabled'])) {
+      $build = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [],
+        'value' => $build,
+      ];
+    }
     $build['#neo_tooltip_built'] = TRUE;
     return $build;
   }
