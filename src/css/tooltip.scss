@@ -33,8 +33,25 @@
   li {
     @apply whitespace-nowrap;
 
-    a {
-      @apply block p-1 cursor-pointer;
+    a,
+    button {
+      @apply block cursor-pointer p-1 text-xs;
+    }
+
+    button {
+      @apply my-1;
+    }
+
+    &:first-child {
+      button {
+        @apply mt-0;
+      }
+    }
+
+    &:last-child {
+      button {
+        @apply mb-0;
+      }
     }
   }
 
@@ -47,8 +64,10 @@
   .tippy-content {
     @apply p-1;
 
-    a {
-      @apply px-2 rounded-sm;
+    a,
+    button {
+      // Reset styling that may be set my other modules.
+      @apply h-auto w-full overflow-auto rounded-sm border-none bg-none px-2 indent-0;
     }
   }
 }
