@@ -31,12 +31,11 @@
 
         // Skip the first LI and clone the rest to add to the new UL
         for (let i = 1; i < liElements.length; i++) {
-          // const clonedLi = document.createElement('li');
-          // clonedLi.innerHTML = liElements[i].innerHTML;
           const clonedLi = liElements[i].cloneNode(true) as HTMLLIElement;
           clonedLi.querySelector('a')?.removeAttribute('data-once');
           newUl.appendChild(clonedLi);
           liElements[i].classList.add('sr-only');
+          liElements[i].querySelector('a')?.removeAttribute('id');
         }
 
         const triggerLi = document.createElement('li');
