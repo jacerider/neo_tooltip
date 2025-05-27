@@ -6,7 +6,7 @@
   n.behaviors.neoTooltip = {
     instances: [],
     attach: function(e) {
-      this.hideAll(), !(typeof o.neoTooltip > "u") && l("neo.tooltip", ".use-neo-tooltip", e).forEach((t) => {
+      this.hideAll(), !(typeof o.neoTooltip > "u") && l("neo-tooltip", ".use-neo-tooltip", e).forEach((t) => {
         this.addInstance(t);
       });
     },

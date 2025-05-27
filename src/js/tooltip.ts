@@ -21,7 +21,7 @@
       if (typeof drupalSettings.neoTooltip === 'undefined') {
         return;
       }
-      once('neo.tooltip', '.use-neo-tooltip', context).forEach(el => {
+      once('neo-tooltip', '.use-neo-tooltip', context).forEach(el => {
         this.addInstance(el);
       });
     },
