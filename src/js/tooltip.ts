@@ -22,7 +22,16 @@
         return;
       }
       once('neo-tooltip', '.use-neo-tooltip', context).forEach(el => {
-        this.addInstance(el);
+        if (el.classList.contains('form-checkboxes')) {
+          // Special handling for checkboxes.
+          // We need to add tooltips to each checkbox input.
+          el.querySelectorAll('.form-type--checkbox').forEach((checkbox) => {
+            this.addInstance(checkbox);
+          });
+        }
+        else {
+          this.addInstance(el);
+        }
       });
     },
 
