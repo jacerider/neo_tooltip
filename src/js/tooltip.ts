@@ -21,6 +21,9 @@
       if (typeof drupalSettings.neoTooltip === 'undefined') {
         return;
       }
+      if (context.classList.contains('use-neo-tooltip')) {
+        context = context.parentElement || context;
+      }
       once('neo-tooltip', '.use-neo-tooltip', context).forEach(el => {
         if (el.classList.contains('form-checkboxes')) {
           // Special handling for checkboxes.
