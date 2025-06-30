@@ -26,7 +26,7 @@
   }
 
   .tippy-content {
-    @apply text-xs;
+    @apply font-primary text-xs font-normal;
     color: rgb(var(--tooltip-text));
   }
 
