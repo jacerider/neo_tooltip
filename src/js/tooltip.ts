@@ -21,7 +21,7 @@
       if (typeof drupalSettings.neoTooltip === 'undefined') {
         return;
       }
-      if (context.classList.contains('use-neo-tooltip')) {
+      if (context.classList && context.classList.contains('use-neo-tooltip')) {
         context = context.parentElement || context;
       }
       once('neo-tooltip', '.use-neo-tooltip', context).forEach(el => {
