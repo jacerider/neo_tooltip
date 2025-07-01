@@ -1,12 +1,12 @@
-(function(s, o, l, p) {
+(function(n, o, r, p) {
   const h = function(t) {
     let e = document.querySelector(`link[neo-tooltip-animation-${t}]`);
     e || (e = document.createElement("link"), e.rel = "stylesheet", e.type = "text/css", e.media = "screen", e.href = "/" + o.neoTooltip.dir + `/dist/css/tippy-${t}.css`, e.setAttribute(`neo-tooltip-animation-${t}`, ""), document.getElementsByTagName("head")[0].appendChild(e));
   };
-  s.behaviors.neoTooltip = {
+  n.behaviors.neoTooltip = {
     instances: [],
     attach: function(t) {
-      this.hideAll(), !(typeof o.neoTooltip > "u") && (t.classList.contains("use-neo-tooltip") && (t = t.parentElement || t), l("neo-tooltip", ".use-neo-tooltip", t).forEach((e) => {
+      this.hideAll(), !(typeof o.neoTooltip > "u") && (t.classList && t.classList.contains("use-neo-tooltip") && (t = t.parentElement || t), r("neo-tooltip", ".use-neo-tooltip", t).forEach((e) => {
         e.classList.contains("form-checkboxes") ? e.querySelectorAll(".form-type--checkbox").forEach((i) => {
           this.addInstance(i);
         }) : this.addInstance(e);
@@ -22,34 +22,34 @@
         maxWidth: 600
       }, o.neoTooltip), i = t.getAttribute("data-tippy-animation") || e.animation;
       if (i && ["shift-toward", "shift-away", "scale", "perspective"].includes(i) && h(i), t.getAttribute("data-tippy-trigger-nearest")) {
-        const n = t.closest("a, input, button");
-        if (n && n !== t)
-          e.triggerTarget = [n];
+        const s = t.closest("a, input, button");
+        if (s && s !== t)
+          e.triggerTarget = [s];
         else {
           const c = t.closest("label");
           if (c)
             e.triggerTarget = [c];
           else {
-            const r = t.closest("input");
-            r && (e.triggerTarget = [r]);
+            const l = t.closest("input");
+            l && (e.triggerTarget = [l]);
           }
         }
       }
       const a = t.getAttribute("data-tippy-template");
-      return a && o.neoTooltipTemplates && o.neoTooltipTemplates[a] && (e.allowHTML = !0, e.interactive = !0, e.content = o.neoTooltipTemplates[a]), e.onShow = (n) => n.props.content.length != 0, e;
+      return a && o.neoTooltipTemplates && o.neoTooltipTemplates[a] && (e.allowHTML = !0, e.interactive = !0, e.content = o.neoTooltipTemplates[a]), e.onShow = (s) => s.props.content.length != 0, e;
     },
     hideAll: () => {
-      s.behaviors.neoTooltip.instances.forEach((t) => {
+      n.behaviors.neoTooltip.instances.forEach((t) => {
         t.hide();
       });
     },
     disableAll: () => {
-      s.behaviors.neoTooltip.instances.forEach((t) => {
+      n.behaviors.neoTooltip.instances.forEach((t) => {
         t.disable();
       });
     },
     enableAll: () => {
-      s.behaviors.neoTooltip.instances.forEach((t) => {
+      n.behaviors.neoTooltip.instances.forEach((t) => {
         t.enable();
       });
     }
