@@ -1,0 +1,15 @@
+neo_tooltip.settings:
+  type: config_object
+  mapping:
+    placement:
+      type: string
+      label: Placement
+    animation:
+      type: string
+      label: Animation
+    trigger:
+      type: string
+      label: Trigger
+    color:
+      type: string
+      label: Color
