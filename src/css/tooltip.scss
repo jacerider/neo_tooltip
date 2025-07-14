@@ -26,8 +26,12 @@
   }
 
   .tippy-content {
-    @apply font-primary text-xs font-normal;
+    @apply text-xs font-normal;
     color: rgb(var(--tooltip-text));
+
+    .theme-front & {
+      @apply font-primary;
+    }
   }
 
   li {
