@@ -32,6 +32,10 @@
     .theme-front & {
       @apply font-primary;
     }
+
+    ul {
+      @apply list-inside list-disc;
+    }
   }
 
   li {
@@ -72,6 +76,10 @@
     button {
       // Reset styling that may be set my other modules.
       @apply h-auto w-full overflow-auto rounded-sm border-none bg-base-900 px-2 indent-0 text-xs font-bold hover:bg-base-600 hover:text-base-content-600;
+    }
+
+    ul {
+      @apply list-none;
     }
   }
 }
