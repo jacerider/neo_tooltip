@@ -7,7 +7,7 @@
       stylesheet.rel = 'stylesheet';
       stylesheet.type = 'text/css';
       stylesheet.media = 'screen';
-      stylesheet.href = '/' + drupalSettings.neoTooltip.dir + `/dist/css/tippy-${animation}.css`;
+      stylesheet.href = '/' + drupalSettings.neoTooltip.dir + `/lib/css/tippy-${animation}.css`;
       stylesheet.setAttribute(`neo-tooltip-animation-${animation}`, '');
       document.getElementsByTagName('head')[0].appendChild(stylesheet);
     }
@@ -108,5 +108,3 @@
   };
 
 })(Drupal, drupalSettings, once, tippy);
-
-export {};

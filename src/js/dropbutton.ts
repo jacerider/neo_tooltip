@@ -69,5 +69,3 @@
   };
 
 })(Drupal, drupalSettings, once);
-
-export {};

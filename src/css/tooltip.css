@@ -26,7 +26,8 @@
   }
 
   .tippy-content {
-    @apply text-xs font-normal;
+    font-size: var(--text-xs);
+    font-weight: 400;
     color: rgb(var(--tooltip-text));
 
     .theme-front & {
@@ -34,31 +35,36 @@
     }
 
     ul {
-      @apply list-inside list-disc;
+      list-style-position: inside;
+      list-style-type: disc;
     }
   }
 
   li {
-    @apply whitespace-nowrap;
+    white-space: nowrap;
 
     a,
     button {
-      @apply block cursor-pointer p-1 text-xs;
+      display: block;
+      cursor: pointer;
+      padding: 0.25rem;
+      font-size: var(--text-xs);
     }
 
     button {
-      @apply my-1;
+      margin-top: 0.25rem;
+      margin-bottom: 0.25rem;
     }
 
     &:first-child {
       button {
-        @apply mt-0;
+        margin-top: 0;
       }
     }
 
     &:last-child {
       button {
-        @apply mb-0;
+        margin-bottom: 0;
       }
     }
   }
@@ -70,20 +76,28 @@
 
 .tippy-box[data-theme~='dropbutton'] {
   .tippy-content {
-    @apply p-1;
+    padding: 0.25rem;
 
     a,
     button {
-      // Reset styling that may be set my other modules.
-      @apply h-auto w-full overflow-auto rounded-sm border-none bg-base-900 px-2 indent-0 font-bold hover:bg-base-600 hover:text-base-600-content;
+      @apply bg-base-900 hover:bg-base-600 hover:text-base-600-content;
+      height: auto;
+      width: 100%;
+      overflow: auto;
+      border-radius: 0.125rem;
+      border: none;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      text-indent: 0;
+      font-weight: bold;
     }
 
     ul {
-      @apply list-none;
+      list-style-type: none;
     }
 
     li {
-      @apply text-xs;
+      font-size: var(--text-xs);
     }
   }
 }

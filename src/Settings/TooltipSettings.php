@@ -84,19 +84,19 @@ class TooltipSettings extends SettingsBase {
       '#type' => 'html_tag',
       '#tag' => 'pre',
       '#value' => ".tippy-box[data-theme~='neo'] {
-  @apply bg-white text-black shadow-lg;
+  @apply bg-default text-black shadow-lg;
 
   &[data-placement^='top'] > .tippy-arrow::before {
-    @apply border-t-white;
+    @apply border-t-default;
   }
   &[data-placement^='bottom'] > .tippy-arrow::before {
-    @apply border-b-white;
+    @apply border-b-default;
   }
   &[data-placement^='left'] > .tippy-arrow::before {
-    @apply border-l-white;
+    @apply border-l-default;
   }
   &[data-placement^='right'] > .tippy-arrow::before {
-    @apply border-r-white;
+    @apply border-r-default;
   }
   .tippy-content {
     @apply p-6 text-base;

@@ -32,7 +32,7 @@ class NeoBuildInlineEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Subscribe to the user login event dispatched.
+   * Subscribe to the Neo build event dispatched.
    *
    * We inject the CSS variables directly into the DOM so that we do not need
    * to wait for the build to complete before the CSS is applied.
@@ -43,7 +43,7 @@ class NeoBuildInlineEventSubscriber implements EventSubscriberInterface {
   public function onInlineBuild(NeoBuildInlineEvent $event) {
     if ($color = $this->settings->getValue('color')) {
       $event->addCssValue('--tooltip-bg', 'var(--color-' . $color . ')');
-      $event->addCssValue('--tooltip-text', 'var(--color-' . str_replace('-', '-content-', $color) . ')');
+      $event->addCssValue('--tooltip-text', 'var(--color-' . $color . '-content)');
     }
     $event->addCacheTags(['config:neo_tooltip.settings']);
   }

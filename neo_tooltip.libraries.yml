@@ -1,9 +1,9 @@
 tooltip:
   version: VERSION
-  neo: { group: contrib }
+  neo: true
   css:
     component:
-      src/css/tooltip.scss: { minified: true }
+      src/css/tooltip.css: { minified: true }
   js:
     src/js/tooltip.ts: {}
   dependencies:
@@ -13,7 +13,7 @@ tooltip:
 
 dropbutton:
   version: VERSION
-  neo: { group: contrib }
+  neo: true
   js:
     src/js/dropbutton.ts: {}
   dependencies:
@@ -24,6 +24,6 @@ dropbutton:
 library.tippy:
   version: 6.3.7
   js:
-    dist/js/tippy-bundle.umd.min.js: {minified: true}
+    lib/js/tippy-bundle.umd.min.js: {minified: true}
   dependencies:
     - neo/library.popper
