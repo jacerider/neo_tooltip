@@ -659,25 +659,6 @@ class Tooltip {
   }
 
   /**
-   * Build the content.
-   *
-   * @param mixed $content
-   *   The tooltip content.
-   *
-   * @return array
-   *   The renderable array.
-   */
-  public function buildTemplate(mixed $content):array {
-    return [
-      '#type' => 'inline_template',
-      '#template' => '<template class="neo-tooltip-template">{{ content }}</template>',
-      '#context' => [
-        'content' => $content,
-      ],
-    ];
-  }
-
-  /**
    * Apply the tooltip to an attribute.
    *
    * @param \Drupal\Core\Template\Attribute $attribute
@@ -700,11 +681,9 @@ class Tooltip {
     $attribute->merge($this->getAttributes());
     $attribute->removeAttribute('title');
     if ($this->content && $this->contentAsTemplate) {
-      $attribute->setAttribute('data-tippy-template', 'true');
-      $link->setText([
-        'trigger' => ['#markup' => $link->getText()],
-        'template' => $this->buildTemplate($this->content),
-      ]);
+      $id = 'tooltip-' . uniqid();
+      $attribute->setAttribute('data-tippy-template', $id);
+      $build['#attached']['drupalSettings']['neoTooltipTemplates'][$id] = is_array($this->content) ? \Drupal::service('renderer')->render($this->content) : $this->content;
     }
     $attributes = $attribute->toArray();
     $url->setOption('attributes', $attributes);
