@@ -13,6 +13,13 @@ use Twig\TwigFunction;
 class TwigExtension extends AbstractExtension {
 
   /**
+   * Unique identifier for the tooltip.
+   *
+   * @var string
+   */
+  protected static string $id;
+
+  /**
    * {@inheritdoc}
    */
   public function getFunctions() {
@@ -58,7 +65,8 @@ class TwigExtension extends AbstractExtension {
     $tooltip->getAttributes();
     $tooltip->applyToAttribute($attribute);
     if (empty($options['content'])) {
-      $attribute->setAttribute('data-tippy-template', 'true');
+      self::$id = 'tooltip-' . uniqid();
+      $attribute->setAttribute('data-tippy-template', self::$id);
     }
     return $attribute;
   }
@@ -67,19 +75,17 @@ class TwigExtension extends AbstractExtension {
    * Prepare content for tooltip.
    */
   public function prepareContent(mixed $content) {
+    $build = [];
     $tooltip = new Tooltip();
     if (!is_array($content)) {
-      $content = [
-        '#type' => 'markup',
-        '#markup' => $content,
-      ];
+      $build['#attached']['drupalSettings']['neoTooltipTemplates'][self::$id] = $content;
     }
     foreach ($tooltip->getAttachments() as $attachmentType => $attachments) {
       foreach ($attachments as $attachment) {
-        $content['#attached'][$attachmentType][] = $attachment;
+        $build['#attached'][$attachmentType][] = $attachment;
       }
     }
-    return $tooltip->buildTemplate($content);
+    return $build;
   }
 
 }
