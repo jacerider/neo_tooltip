@@ -11,7 +11,6 @@
 
         const firstLi = el.querySelector('li');
         if (!firstLi) {
-          console.error('No li elements found in the list');
           return;
         }
         el.classList.add('neo-dropbutton');
@@ -52,15 +51,15 @@
         options.theme = 'neo dropbutton';
         options.trigger = 'click';
         options.interactive = true;
-        // if (hasNonVisibleOverflowParent(el)) {
-        //   options.appendTo = document.body;
-        // }
         options.placement = 'bottom-end';
         options.onShow = (instance:any) => {
-          Drupal.attachBehaviors(instance.popper, drupalSettings);
+          if (Drupal.ajax) {
+            Drupal.ajax.bindAjaxLinks(instance.popper);
+          }
           el.classList.add('is-active');
         };
         options.onHide = (_instance:any) => {
+          Drupal.detachBehaviors(_instance.popper, drupalSettings);
           el.classList.remove('is-active');
         };
         Drupal.behaviors.neoTooltip.addInstance(triggerLi, options);
