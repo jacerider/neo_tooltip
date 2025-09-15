@@ -52,10 +52,11 @@
         options.trigger = 'click';
         options.interactive = true;
         options.placement = 'bottom-end';
-        options.onShow = (instance:any) => {
-          if (Drupal.ajax) {
-            Drupal.ajax.bindAjaxLinks(instance.popper);
-          }
+        options.onShown = (instance:any) => {
+          // if (Drupal.ajax) {
+          //   Drupal.ajax.bindAjaxLinks(instance.popper);
+          // }
+          Drupal.attachBehaviors(instance.popper, drupalSettings);
           el.classList.add('is-active');
         };
         options.onHide = (_instance:any) => {
