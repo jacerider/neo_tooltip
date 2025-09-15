@@ -17,7 +17,12 @@
     instances: [] as any,
 
     attach: function (context:HTMLElement) {
-      this.hideAll();
+      if (context && context.id && context.id.startsWith('tippy-')) {
+        // Do not hide if the context is a tooltip itself.
+      }
+      else {
+        this.hideAll();
+      }
       if (typeof drupalSettings.neoTooltip === 'undefined') {
         return;
       }
