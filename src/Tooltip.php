@@ -623,6 +623,7 @@ class Tooltip {
     if (empty($build['#type']) || in_array($build['#type'], [
       'markup',
       'plain_text',
+      'neo_icon',
     ])) {
       $build = [
         '#type' => 'html_tag',
@@ -687,6 +688,18 @@ class Tooltip {
     }
     $attributes = $attribute->toArray();
     $url->setOption('attributes', $attributes);
+  }
+
+  /**
+   * Create from markup.
+   */
+  public static function createFromMarkup(MarkupInterface $markup, $content = NULL, array $options = []): array {
+    $trigger = [
+      '#markup' => $markup,
+    ];
+    $tooltip = new self($content, $options);
+    $tooltip->applyTo($trigger);
+    return $trigger;
   }
 
   /**
