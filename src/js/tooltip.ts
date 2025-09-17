@@ -45,6 +45,7 @@
 
     addInstance: function (el:HTMLElement, options:any) {
       options = Object.assign({}, this.getOptions(el), options);
+      delete options.dir;
       this.instances.push(tippy(el, options));
     },
 
