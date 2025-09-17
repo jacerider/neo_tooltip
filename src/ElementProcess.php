@@ -55,7 +55,12 @@ class ElementProcess {
 
     if ($tooltip) {
       // Checkboxes and radios need to use the wrapper attributes.
-      if (isset($element['#type']) && in_array($element['#type'], ['checkboxes', 'radios'])) {
+      if (isset($element['#type']) && in_array($element['#type'], [
+        'checkboxes',
+        'radios',
+        'select',
+        'entity_autocomplete',
+      ])) {
         $attributesProperty = 'wrapper_attributes';
       }
       $tooltip->applyTo($element, '#' . $attributesProperty);
