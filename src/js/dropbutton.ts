@@ -52,12 +52,16 @@
         options.trigger = 'click';
         options.interactive = true;
         options.placement = 'bottom-end';
-        options.onShown = (instance:any) => {
-          // if (Drupal.ajax) {
-          //   Drupal.ajax.bindAjaxLinks(instance.popper);
-          // }
-          Drupal.attachBehaviors(instance.popper, drupalSettings);
+        options.onShow = (_instance:any) => {
           el.classList.add('is-active');
+        };
+        const table = triggerLi.closest('table');
+        if (table) {
+          // Attach the dropdown to the table to prevent overflow issues.
+          options.appendTo = table;
+        }
+        options.onShown = (instance:any) => {
+          Drupal.attachBehaviors(instance.popper, drupalSettings);
         };
         options.onHide = (_instance:any) => {
           Drupal.detachBehaviors(_instance.popper, drupalSettings);
