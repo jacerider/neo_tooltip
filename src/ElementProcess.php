@@ -26,6 +26,15 @@ class ElementProcess {
       return $element;
     }
 
+    // Do not apply to hidden or value elements.
+    if (isset($element['#type']) && in_array($element['#type'], [
+      'hidden',
+      'value',
+      'table',
+    ])) {
+      return $element;
+    }
+
     $tooltip = NULL;
     $attributesProperty = 'attributes';
     $options = [
