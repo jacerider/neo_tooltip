@@ -30,6 +30,10 @@
         context = context.parentElement || context;
       }
       once('neo-tooltip', '.use-neo-tooltip', context).forEach(el => {
+        // If tag name is table, td, tr, or th, do not apply tooltip.
+        if (['table', 'td', 'tr', 'th'].includes(el.tagName.toLowerCase())) {
+          return;
+        }
         if (el.classList.contains('form-checkboxes')) {
           // Special handling for checkboxes.
           // We need to add tooltips to each checkbox input.
