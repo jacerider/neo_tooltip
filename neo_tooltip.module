@@ -40,6 +40,7 @@ function neo_tooltip_element_info_alter(array &$info) {
       $element['#process'][] = [ElementProcess::class, 'processInput'];
     }
   }
+  $info['link']['#pre_render'] = array_merge([[ElementPreRender::class, 'link']], $info['link']['#pre_render']);
 }
 
 function neo_tooltip_library_info_alter(&$libraries, $extension) {
