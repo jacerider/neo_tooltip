@@ -17,7 +17,7 @@
     instances: [] as any,
 
     attach: function (context:HTMLElement) {
-      if (context && context.id && context.id.startsWith('tippy-')) {
+      if (context && context.id && typeof context.id === 'string' && context.id.startsWith('tippy-')) {
         // Do not hide if the context is a tooltip itself.
       }
       else {
