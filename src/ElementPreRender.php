@@ -25,10 +25,10 @@ class ElementPreRender implements TrustedCallbackInterface {
       if ($element['#title']->isIconOnly()) {
         // Set the text to empty so the default link title does not show when
         // hovering over the link.
-        $element['#title']->setText('');
+        $element['#title']->assignTitle(FALSE);
       }
     }
-    $tooltip = new Tooltip($element['#tooltip']);
+    $tooltip = new Tooltip($element['#tooltip'], $element['#tooltip_options'] ?? []);
     $tooltip->applyTo($element);
     return $element;
   }
