@@ -9,6 +9,7 @@ tooltip:
   dependencies:
     - core/drupal
     - core/drupalSettings
+    - core/once
     - neo_tooltip/library.tippy
 
 dropbutton:
@@ -18,6 +19,7 @@ dropbutton:
     src/js/dropbutton.ts: {}
   dependencies:
     - neo_tooltip/tooltip
+    - core/once
 
 # Libraries
 
