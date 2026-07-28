@@ -47,6 +47,46 @@
       });
     },
 
+    /**
+     * Tear down the instances inside a context before it goes away.
+     *
+     * Without this, `instances` is append-only. Anything that builds DOM at
+     * runtime — this module's own dropbutton popper, or a consumer that clones
+     * a prototype per item — leaves a live tippy behind for every element it
+     * later discards. Those are never collected, and `hideAll()` walks the
+     * whole list on every subsequent attach, so opening any tooltip gets
+     * steadily more expensive the longer the page lives.
+     *
+     * `once.remove()` matters as much as the destroy: a context that is
+     * detached and then re-attached — exactly what the dropbutton popper does
+     * on every open and close — has to be able to build its tooltips again,
+     * and the `once` stamp would otherwise block it forever.
+     *
+     * Callers that discard DOM must call Drupal.detachBehaviors() on it before
+     * removing; an element torn out without that still leaks, because there is
+     * no safe way to distinguish it from one that is only temporarily out of
+     * the document and on its way back.
+     */
+    detach: function (context:HTMLElement, _settings:any, trigger:string) {
+      // 'serialize' is a form read, not a teardown. 'move' keeps the element —
+      // and with it the once stamp and a still-valid instance — alive on the
+      // other side, so there is nothing to collect.
+      if (trigger !== 'unload') {
+        return;
+      }
+      this.instances = this.instances.filter((instance:any) => {
+        const el = instance.reference as HTMLElement;
+        // contains() counts a node as containing itself, so this covers both
+        // the context being torn down and everything under it.
+        if (el && !context.contains(el)) {
+          return true;
+        }
+        instance.destroy();
+        return false;
+      });
+      once.remove('neo-tooltip', '.use-neo-tooltip', context);
+    },
+
     addInstance: function (el:HTMLElement, options:any) {
       options = Object.assign({}, this.getOptions(el), options);
       delete options.dir;
@@ -100,6 +140,11 @@
 
     hideAll: () => {
       Drupal.behaviors.neoTooltip.instances.forEach((instance:any) => {
+        // A consumer that destroys an instance directly, rather than through
+        // detach(), leaves it in the list; hiding a destroyed instance warns.
+        if (instance.state?.isDestroyed) {
+          return;
+        }
         instance.hide();
       });
     },
