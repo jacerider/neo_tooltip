@@ -625,7 +625,14 @@ class Tooltip {
       'plain_text',
       'neo_icon',
     ])) {
-      $build = [
+      $inner = $build;
+      // The wrapper is the trigger from here on: the tooltip attributes are
+      // merged into it, not into what it wraps. Marking the wrapped element as
+      // built keeps the process callback from treating it as a fresh trigger
+      // when the form builder walks into it — it still carries the #tooltip
+      // that got it here, so it would be wrapped again, and again.
+      $inner['#neo_tooltip_built'] = TRUE;
+      $build = static::inheritStructure([
         '#type' => 'html_tag',
         '#tag' => 'a',
         '#attributes' => [
@@ -637,8 +644,8 @@ class Tooltip {
           'href' => '',
           'onclick' => 'return false;',
         ],
-        'value' => $build,
-      ];
+        'value' => $inner,
+      ], $inner);
       if ($this->triggerToNearestFocusable) {
         $build['#tag'] = 'span';
         unset($build['#attributes']);
@@ -648,15 +655,45 @@ class Tooltip {
       'submit',
       'button',
     ]) && !empty($build['#disabled'])) {
-      $build = [
+      $inner = $build;
+      $inner['#neo_tooltip_built'] = TRUE;
+      $build = static::inheritStructure([
         '#type' => 'html_tag',
         '#tag' => 'div',
         '#attributes' => [],
-        'value' => $build,
-      ];
+        'value' => $inner,
+      ], $inner);
     }
     $build['#neo_tooltip_built'] = TRUE;
     return $build;
+  }
+
+  /**
+   * Carries an element's structural properties over to a wrapper around it.
+   *
+   * Wrapping happens from a #process callback, which runs inside
+   * FormBuilder::doBuildForm() — after the builder has already stamped the
+   * element with the properties it uses to walk the tree. Handing back a fresh
+   * wrapper without them makes the builder emit "Undefined array key
+   * #array_parents" for every descendant of the wrapper, on every build, each
+   * with a full backtrace. #weight goes along too, or the wrapped element
+   * silently loses its place in the parent's ordering.
+   *
+   * @param array $wrapper
+   *   The wrapper element.
+   * @param array $original
+   *   The element being wrapped.
+   *
+   * @return array
+   *   The wrapper, carrying the original's structural properties.
+   */
+  protected static function inheritStructure(array $wrapper, array $original): array {
+    foreach (['#array_parents', '#parents', '#weight'] as $property) {
+      if (isset($original[$property])) {
+        $wrapper[$property] = $original[$property];
+      }
+    }
+    return $wrapper;
   }
 
   /**
