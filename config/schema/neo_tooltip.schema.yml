@@ -1,5 +1,18 @@
 neo_tooltip.settings:
-  type: config_object
+  type: neo_tooltip
+  mapping:
+    _core:
+      # Added by the config installer; only exists for merging config.
+      requiredKey: false
+      type: _core_config_info
+
+# Required by neo_settings.schema.yml, which resolves a variation's stored
+# settings via `type: neo_settings.settings.[%parent.plugin]`.
+neo_settings.settings.neo_tooltip:
+  type: neo_tooltip
+
+neo_tooltip:
+  type: mapping
   mapping:
     placement:
       type: string
