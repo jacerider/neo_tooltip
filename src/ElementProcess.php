@@ -69,6 +69,10 @@ class ElementProcess {
     // If we have a tooltip set as a string.
     if (isset($element['#tooltip']) && (is_string($element['#tooltip']) || $element['#tooltip'] instanceof MarkupInterface)) {
       $tooltip = new Tooltip($element['#tooltip'], $options);
+      // A deliberate tooltip needs a visible trigger as much as a converted
+      // description does — more so, since there is no description rendered
+      // underneath to hint that the field has anything to say.
+      $element['#neo_tooltip_help'] = static::settingValue('description_icon', TRUE) ? TRUE : FALSE;
     }
     // If we have a description set as a string.
     elseif (!empty($element['#description']) && (is_string($element['#description']) || $element['#description'] instanceof MarkupInterface)) {
