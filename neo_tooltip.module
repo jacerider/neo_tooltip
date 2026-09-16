@@ -48,6 +48,26 @@ function neo_tooltip_preprocess_form_element(&$variables) {
 }
 
 /**
+ * Implements hook_preprocess_fieldset().
+ *
+ * A checkboxes or radios group labels itself with a <legend>, which never goes
+ * through form_element_label — so the marker planted for a normal field never
+ * reached it, and a group was the one field type whose help had no visible
+ * trigger. Its own preprocess plants the same thing for fieldset.html.twig.
+ */
+function neo_tooltip_preprocess_fieldset(&$variables) {
+  if (empty($variables['element']['#neo_tooltip_help'])) {
+    return;
+  }
+  $title = $variables['element']['#title'] ?? NULL;
+  $variables['neo_tooltip_help'] = [
+    'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
+      ? t('More information about @label', ['@label' => $title])
+      : t('More information'),
+  ];
+}
+
+/**
  * Implements hook_preprocess_form_element_label().
  */
 function neo_tooltip_preprocess_form_element_label(&$variables) {
