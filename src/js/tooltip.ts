@@ -105,59 +105,54 @@
       }
       const triggerToNearest = el.getAttribute('data-tippy-trigger-nearest');
       if (triggerToNearest) {
-        const closest = el.closest('a, input, button');
-        if (closest && closest !== el) {
-          options.triggerTarget = [closest];
-        }
-        else {
-          // Bind to some parent form elements.
-          const closestLabel = el.closest('label');
-          if (closestLabel) {
-            options.triggerTarget = [closestLabel];
-          }
-          else {
-            const closestInput = el.closest('input');
-            if (closestInput) {
-              options.triggerTarget = [closestInput];
-            }
-          }
-        }
-        // Where a help icon exists it becomes the *only* trigger, replacing the
-        // field rather than joining it.
+        // One element both opens the tooltip and is pointed at by it.
         //
-        // A tooltip bound to the control fires while you are trying to use it:
-        // on hover as the pointer crosses the field, and on focus for every
-        // described field you tab through — covering the neighbouring row each
-        // time. On touch there is no hover at all, so the only thing that opens
-        // it is focus, which is the moment the on-screen keyboard appears and
-        // the viewport is at its smallest.
+        // These two used to be able to disagree, and the result was a tooltip
+        // that appeared nowhere near what you reached for. `triggerTarget` only
+        // says what opens it; tippy keeps measuring whatever it was constructed
+        // on. On a checkbox or radio that is the form item — the full width of
+        // the row — so hovering a chip at the left opened a tooltip centred
+        // over the middle of the row, 300px away.
         //
-        // It is also the half that is hard to make dismissable. WCAG 1.4.13
-        // wants hover/focus content dismissable without moving focus, and a
-        // tooltip anchored to the field it is describing cannot be closed
-        // without leaving the field. Anchored to a button, it opens and closes
-        // deliberately — see hideOnEsc below.
-        //
-        // Nothing is lost for assistive technology: the description is in the
-        // accessibility tree either way, via core's markup and the
-        // `aria-describedby` the control already carries.
-        //
-        // Scoped to the form item so one field never picks up the next field's
-        // icon, and skipped entirely when the icon is switched off, or the help
-        // would have no trigger at all.
-        const item = el.closest('.js-form-item, .form-item');
-        const help = item && item.querySelector<HTMLElement>('[data-neo-tooltip-help]');
-        if (help) {
-          options.triggerTarget = [help];
-          // Positioning has to move with the trigger. `triggerTarget` only
-          // says what opens the tooltip — tippy still measures the element it
-          // was constructed on, so on its own it leaves the tooltip sitting
-          // over the field while the icon is what opened it.
-          //
-          // A function rather than a captured rect: it is called on every
-          // reposition, so the tooltip follows the icon through scrolling,
-          // resizing and anything that reflows the row.
-          options.getReferenceClientRect = () => help.getBoundingClientRect();
+        // Order matters. A wrapper is asked what it stands in for before the
+        // ancestor walk runs, because the thing on screen is inside it, not
+        // above it: a select is replaced by `.ts-wrapper`, and a checkbox is
+        // drawn by its label while the input behind it is `sr-only` and 1px.
+        // Querying ancestors finds neither.
+        const inside = (sel:string) => el.querySelector<HTMLElement>(sel);
+        const closest = el.closest<HTMLElement>('a, input, button');
+        // The help icon is looked up from the form item, not from `el`. On a
+        // text field `el` is the input itself and the icon is its sibling in
+        // the label, so searching `el` would never find it.
+        const item = el.closest<HTMLElement>('.js-form-item, .form-item');
+        // A single checkbox or radio, not a group of them. The group's tooltip
+        // describes the whole set, so it stays anchored to the set.
+        const isBoolean = el.matches('.form-type--checkbox, .form-type--radio, .form-type--boolean, .js-form-type-checkbox, .js-form-type-radio');
+        const isGroup = el.matches('.form-composite, .fieldgroup, .form-type--checkboxes, .form-type--radios');
+        const anchor =
+          // A help icon beside the label, where one is rendered.
+          (item && item.querySelector<HTMLElement>('[data-neo-tooltip-help]'))
+          // The control a wrapper stands in for, most specific first.
+          || inside('.ts-wrapper')
+          // A checkbox or radio is drawn by a label. Which label depends on the
+          // template that ran: the grouped path marks it `.option`, while a
+          // single checkbox in a button style is wrapped by a plain one. Both
+          // are the visible control, so take whichever is there.
+          || (isBoolean ? (inside('label.option') || inside('label')) : null)
+          // A group's tooltip describes the whole set, so it stays on the set
+          // rather than picking whichever option happens to come first.
+          || (isGroup ? null : inside('select, textarea, input:not([type="hidden"]):not(.sr-only)'))
+          // Failing that, the nearest focusable ancestor — the original rule.
+          || (closest && closest !== el ? closest : null)
+          || el.closest<HTMLElement>('label')
+          || el.closest<HTMLElement>('input');
+
+        if (anchor && anchor !== el) {
+          options.triggerTarget = [anchor];
+          // A function, not a captured rect: tippy calls it on every
+          // reposition, so the tooltip follows the anchor through scroll,
+          // resize and anything else that reflows the row.
+          options.getReferenceClientRect = () => anchor.getBoundingClientRect();
         }
       }
       const template = el.getAttribute('data-tippy-template');
