@@ -149,6 +149,15 @@
         const help = item && item.querySelector<HTMLElement>('[data-neo-tooltip-help]');
         if (help) {
           options.triggerTarget = [help];
+          // Positioning has to move with the trigger. `triggerTarget` only
+          // says what opens the tooltip — tippy still measures the element it
+          // was constructed on, so on its own it leaves the tooltip sitting
+          // over the field while the icon is what opened it.
+          //
+          // A function rather than a captured rect: it is called on every
+          // reposition, so the tooltip follows the icon through scrolling,
+          // resizing and anything that reflows the row.
+          options.getReferenceClientRect = () => help.getBoundingClientRect();
         }
       }
       const template = el.getAttribute('data-tippy-template');
