@@ -26,3 +26,18 @@ neo_tooltip:
     color:
       type: string
       label: Color
+    border_color:
+      type: string
+      label: 'Border color'
+    border_radius:
+      type: string
+      label: 'Border radius'
+    description_mode:
+      type: string
+      label: 'Form description display mode'
+    description_max_length:
+      type: integer
+      label: 'Automatic length cutoff'
+    description_icon:
+      type: boolean
+      label: 'Show a help icon beside the label'

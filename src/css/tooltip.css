@@ -9,9 +9,22 @@
   }
 }
 
+/* The tooltip is part of the form language, not a browser-default black chip
+   floating over it, so its border, radius and shadow default to the form item's
+   own. Every value is a variable with a fallback rather than a literal: the ones
+   a site is likely to want are emitted from settings by
+   NeoBuildInlineEventSubscriber, and the rest can be redeclared by a theme.
+
+   Fallbacks, not @theme: a module's CSS is compiled into every scope's bundle,
+   and `@theme` there would leak these into the theme's token space. */
 .tippy-box[data-theme~='neo'] {
   background-color: rgb(var(--tooltip-bg));
+  border: var(--tooltip-border-width, 0) solid var(--tooltip-border, transparent);
+  border-radius: var(--tooltip-radius, var(--form-item-border-radius, 2px));
+  box-shadow: var(--tooltip-shadow, 0 4px 14px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.1));
 
+  /* The arrow has to match the border, or a bordered tooltip grows a notch
+     where the arrow meets the box. */
   &[data-placement^='top'] > .tippy-arrow::before {
     border-top-color: rgb(var(--tooltip-bg));
   }
@@ -26,8 +39,10 @@
   }
 
   .tippy-content {
-    font-size: var(--text-xs);
-    font-weight: 400;
+    font-size: var(--tooltip-font-size, var(--text-xs));
+    font-weight: var(--tooltip-font-weight, 400);
+    line-height: var(--tooltip-line-height, var(--leading-snug, 1.375));
+    padding: var(--tooltip-padding, calc(var(--spacing) * 1.5) calc(var(--spacing) * 2));
     color: rgb(var(--tooltip-text));
 
     .theme-front & {

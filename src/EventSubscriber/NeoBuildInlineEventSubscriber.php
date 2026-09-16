@@ -45,6 +45,16 @@ class NeoBuildInlineEventSubscriber implements EventSubscriberInterface {
       $event->addCssValue('--tooltip-bg', 'var(--color-' . $color . ')');
       $event->addCssValue('--tooltip-text', 'var(--color-' . $color . '-content)');
     }
+    // A border only earns its keep once the tooltip is light enough to need
+    // separating from what it sits on, so it is opt-in: leaving the colour
+    // unset leaves the width at the stylesheet's 0 and costs nothing.
+    if ($borderColor = $this->settings->getValue('border_color')) {
+      $event->addCssValue('--tooltip-border', 'rgb(var(--color-' . $borderColor . '))');
+      $event->addCssValue('--tooltip-border-width', '1px');
+    }
+    if ($radius = $this->settings->getValue('border_radius')) {
+      $event->addCssValue('--tooltip-radius', $radius);
+    }
     $event->addCacheTags(['config:neo_tooltip.settings']);
   }
 

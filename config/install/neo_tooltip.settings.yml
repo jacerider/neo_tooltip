@@ -2,3 +2,8 @@ placement: top
 animation: shift-away
 trigger: 'mouseenter focus'
 color: base-900
+border_color: ''
+border_radius: ''
+description_mode: tooltip
+description_max_length: 70
+description_icon: true

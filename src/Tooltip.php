@@ -87,6 +87,13 @@ class Tooltip {
   protected bool $triggerToNearestFocusable = FALSE;
 
   /**
+   * Whether something else already names the trigger to assistive technology.
+   *
+   * @var bool
+   */
+  protected bool $describedElsewhere = FALSE;
+
+  /**
    * Constructs a new Tooltip.
    *
    * @param mixed $content
@@ -561,6 +568,26 @@ class Tooltip {
   }
 
   /**
+   * Declares that the trigger already carries this text for assistive tech.
+   *
+   * Tippy manages ARIA on its reference by default, and neither of the two
+   * things it does is wanted once that is true. A non-interactive instance
+   * appends its own `aria-describedby`, which announces the text twice. An
+   * interactive one — which is every tooltip built from HTML, since that is
+   * passed as a template — instead sets `aria-expanded`, and `aria-expanded`
+   * on a textbox claims combobox semantics the field does not have.
+   *
+   * Set by ElementProcess when it moves a `#description` into a tooltip, where
+   * core's own description markup stays in the DOM to be announced.
+   *
+   * @return $this
+   */
+  public function setDescribedElsewhere():self {
+    $this->describedElsewhere = TRUE;
+    return $this;
+  }
+
+  /**
    * Returns the attributes for the tooltip.
    *
    * @return \Drupal\Core\Template\Attribute
@@ -594,6 +621,9 @@ class Tooltip {
     }
     if ($this->triggerToNearestFocusable) {
       $attributes['data-tippy-trigger-nearest'] = 'true';
+    }
+    if ($this->describedElsewhere) {
+      $attributes['data-tippy-described-elsewhere'] = 'true';
     }
     if ($this->content && !$this->contentAsTemplate) {
       $attributes['data-tippy-content'] = $this->content;

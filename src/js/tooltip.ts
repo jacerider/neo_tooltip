@@ -122,12 +122,32 @@
             }
           }
         }
+        // The help icon beside the label opens the same tooltip as the field.
+        // It is a second triggerTarget rather than a second instance, so the
+        // two cannot end up showing the same sentence at once, and closing
+        // either closes it. Scoped to the form item so a label in one field
+        // never picks up the icon belonging to the next.
+        const item = el.closest('.js-form-item, .form-item');
+        const help = item && item.querySelector<HTMLElement>('[data-neo-tooltip-help]');
+        if (help) {
+          options.triggerTarget = (options.triggerTarget || [el]).concat([help]);
+        }
       }
       const template = el.getAttribute('data-tippy-template');
       if (template && drupalSettings.neoTooltipTemplates && drupalSettings.neoTooltipTemplates[template]) {
         options['allowHTML'] = true;
         options['interactive'] = true;
         options['content'] = drupalSettings.neoTooltipTemplates[template];
+      }
+      // Hand ARIA back to the markup when the trigger is already described.
+      // Tippy's default is `aria: {content: 'auto', expanded: 'auto'}`, and on
+      // a form field neither half is wanted: 'content' appends a second
+      // aria-describedby so the text is announced twice, and 'expanded' — which
+      // is what an interactive instance uses instead, meaning every tooltip
+      // built from HTML — puts aria-expanded on the field, claiming combobox
+      // semantics a textbox does not have. See Tooltip::setDescribedElsewhere().
+      if (el.getAttribute('data-tippy-described-elsewhere')) {
+        options['aria'] = { content: null, expanded: null };
       }
       options.onShow = (instance:any) => {
         if (instance.props.content.length == 0) {

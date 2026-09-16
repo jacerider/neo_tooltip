@@ -5,6 +5,7 @@
  * Primary module hooks for Neo | Tooltip module.
  */
 
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\neo_tooltip\ElementPreRender;
 use Drupal\neo_tooltip\ElementProcess;
@@ -28,6 +29,33 @@ function neo_tooltip_preprocess_form_element(&$variables) {
     $variables['attributes']['class'][] = 'use-neo-tooltip';
     $variables['attributes']['data-tippy-content'] = $variables['element']['#title']['#tooltip'];
     $variables['#attached']['library'][] = 'neo_tooltip/tooltip';
+  }
+
+  // A field whose help moved into a tooltip looks exactly like one with no help
+  // at all, and the only way to find it is to hover every field in turn. Hand
+  // the label a marker so it can draw a trigger you can actually see.
+  //
+  // Data only, no markup: which glyph, and how it is sized and coloured, is the
+  // theme's business — see form-element-label.html.twig in neo_base.
+  if (!empty($variables['element']['#neo_tooltip_help']) && isset($variables['label'])) {
+    $title = $variables['element']['#title'] ?? NULL;
+    $variables['label']['#neo_tooltip_help'] = [
+      'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
+        ? t('More information about @label', ['@label' => $title])
+        : t('More information'),
+    ];
+  }
+}
+
+/**
+ * Implements hook_preprocess_form_element_label().
+ */
+function neo_tooltip_preprocess_form_element_label(&$variables) {
+  // Core's preprocess builds $variables from a handful of keys on the label
+  // element and ignores the rest, so the marker planted above has to be lifted
+  // out by hand for the template to see it.
+  if (!empty($variables['element']['#neo_tooltip_help'])) {
+    $variables['neo_tooltip_help'] = $variables['element']['#neo_tooltip_help'];
   }
 }
 
