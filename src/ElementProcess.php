@@ -3,6 +3,7 @@
 namespace Drupal\neo_tooltip;
 
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -126,8 +127,132 @@ class ElementProcess {
         $attributesProperty = 'wrapper_attributes';
       }
       $tooltip->applyTo($element, '#' . $attributesProperty);
+      if (!empty($element['#neo_tooltip_help'])) {
+        static::placeHelpTrigger($element, $attributesProperty, $complete_form);
+      }
     }
     return $element;
+  }
+
+  /**
+   * Decides where the visible help trigger for this element is drawn.
+   *
+   * The trigger is normally a badge inside the field's own label. That only
+   * works while the label is on screen, and two common cases mean it is not:
+   * a control given `#title_display: invisible`, whose label renders inside a
+   * `visually-hidden` box that clips the badge to nothing; and a control with
+   * no `#title` at all, which renders no label to put a badge in. Both still
+   * get the tooltip, so the help exists with nothing on screen to say so — and
+   * the clipped badge is worse than nothing, because the script anchors the
+   * tooltip to it and a 0x0 box can neither be hovered nor pointed at.
+   *
+   * What names such a control is the legend of the group around it, so that is
+   * where the badge goes. The two ends are tied together by the element's id
+   * rather than by position, because the legend sits outside the form item and
+   * a group may hold more than one described control.
+   *
+   * @param array $element
+   *   The element carrying the tooltip.
+   * @param string $attributesProperty
+   *   The attribute bag the tooltip was applied to, without its leading `#`.
+   * @param array $complete_form
+   *   The form being built, by reference — FormState holds the live array, so
+   *   an ancestor marked here is the one that renders.
+   */
+  protected static function placeHelpTrigger(array &$element, string $attributesProperty, array &$complete_form): void {
+    if (static::rendersVisibleLabel($element)) {
+      return;
+    }
+    // Whatever happens next, the badge does not belong in this element's own
+    // label: there either is no label, or it is hidden and would take the badge
+    // with it.
+    $element['#neo_tooltip_help'] = FALSE;
+
+    // FormBuilder assigns `#id` before it runs process callbacks, so this holds
+    // on any element reached through a form. An element processed outside one
+    // has nothing to tie the two ends together with, and keeps the hover-only
+    // tooltip it would have had anyway.
+    $path = empty($element['#id']) ? [] : static::findLabellingAncestor($element, $complete_form);
+    if (!$path) {
+      // Nothing visible names this control, so there is nowhere to hang a
+      // trigger. The description is still announced and still opens on hover;
+      // only the badge is given up.
+      return;
+    }
+    $ancestor = &NestedArray::getValue($complete_form, $path);
+    // First one wins. A group already drawing a badge — its own description, or
+    // an earlier sibling's — keeps it, rather than growing a row of identical
+    // question marks in one legend.
+    if (!empty($ancestor['#neo_tooltip_help'])) {
+      return;
+    }
+    $ancestor['#neo_tooltip_help'] = ['target' => $element['#id']];
+    $element['#' . $attributesProperty]['data-neo-tooltip-help-id'] = $element['#id'];
+  }
+
+  /**
+   * Whether this element renders a label a reader can see.
+   *
+   * @param array $element
+   *   The element.
+   *
+   * @return bool
+   *   TRUE when a visible label will be rendered.
+   */
+  protected static function rendersVisibleLabel(array $element): bool {
+    if (trim((string) ($element['#title'] ?? '')) === '') {
+      return FALSE;
+    }
+    return !in_array($element['#title_display'] ?? 'before', [
+      'invisible',
+      'attribute',
+      'none',
+    ], TRUE);
+  }
+
+  /**
+   * Finds the nearest enclosing group whose title is on screen.
+   *
+   * @param array $element
+   *   The element to search upwards from.
+   * @param array $complete_form
+   *   The form being built.
+   *
+   * @return array
+   *   The ancestor's `#array_parents` path, or an empty array if there is no
+   *   such ancestor.
+   */
+  protected static function findLabellingAncestor(array $element, array $complete_form): array {
+    $parents = $element['#array_parents'] ?? [];
+    // The element's own path ends with its key; start at its parent.
+    array_pop($parents);
+    while ($parents) {
+      $candidate = NestedArray::getValue($complete_form, $parents, $exists);
+      if ($exists && is_array($candidate) && static::rendersLegend($candidate)) {
+        return $parents;
+      }
+      array_pop($parents);
+    }
+    return [];
+  }
+
+  /**
+   * Whether an element draws its title as a legend or summary.
+   *
+   * `#theme_wrappers` counts as much as `#type`: a checkboxes or radios group
+   * is a fieldset only by way of its wrapper, and that is the case this exists
+   * for as much as a literal fieldset is.
+   *
+   * @param array $element
+   *   The candidate ancestor.
+   *
+   * @return bool
+   *   TRUE when the element renders a visible legend or summary.
+   */
+  protected static function rendersLegend(array $element): bool {
+    $isGroup = in_array($element['#type'] ?? NULL, ['fieldset', 'details'], TRUE)
+      || array_intersect(['fieldset', 'details'], $element['#theme_wrappers'] ?? []);
+    return $isGroup && static::rendersVisibleLabel($element);
   }
 
   /**

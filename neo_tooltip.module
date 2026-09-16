@@ -43,6 +43,10 @@ function neo_tooltip_preprocess_form_element(&$variables) {
       'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
         ? t('More information about @label', ['@label' => $title])
         : t('More information'),
+      // Empty because this trigger sits with the control it describes, so it is
+      // found by position and needs no id to be matched against. The key is
+      // still set, because one template draws every trigger and reads it.
+      'target' => '',
     ];
   }
 }
@@ -56,7 +60,33 @@ function neo_tooltip_preprocess_form_element(&$variables) {
  * trigger. Its own preprocess plants the same thing for fieldset.html.twig.
  */
 function neo_tooltip_preprocess_fieldset(&$variables) {
-  if (empty($variables['element']['#neo_tooltip_help'])) {
+  _neo_tooltip_group_help($variables);
+}
+
+/**
+ * Implements hook_preprocess_details().
+ *
+ * Same job as the fieldset hook: a details element names itself with its
+ * <summary>, so a control inside it that has no visible label of its own hands
+ * its help trigger up here. The two are one pattern with two templates — a
+ * style card is a fieldset when it does not collapse and a details when it
+ * does, and the help has to survive the switch.
+ */
+function neo_tooltip_preprocess_details(&$variables) {
+  _neo_tooltip_group_help($variables);
+}
+
+/**
+ * Builds the legend or summary help trigger for a group.
+ *
+ * @param array $variables
+ *   The template variables, by reference.
+ *
+ * @see \Drupal\neo_tooltip\ElementProcess::placeHelpTrigger()
+ */
+function _neo_tooltip_group_help(array &$variables): void {
+  $help = $variables['element']['#neo_tooltip_help'] ?? NULL;
+  if (empty($help)) {
     return;
   }
   $title = $variables['element']['#title'] ?? NULL;
@@ -64,6 +94,11 @@ function neo_tooltip_preprocess_fieldset(&$variables) {
     'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
       ? t('More information about @label', ['@label' => $title])
       : t('More information'),
+    // Set when the trigger was handed up by a control inside this group rather
+    // than describing the group itself. js/tooltip.ts matches it against the
+    // id stamped on that control, which is the only thing tying a badge in the
+    // legend to an instance built on a form item further down.
+    'target' => is_array($help) ? ($help['target'] ?? '') : '',
   ];
 }
 
