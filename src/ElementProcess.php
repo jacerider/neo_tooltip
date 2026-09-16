@@ -63,9 +63,21 @@ class ElementProcess {
     }
 
     if ($tooltip) {
-      // Checkboxes and radios need to use the wrapper attributes.
+      // Controls whose input is not the thing on screen anchor to their wrapper
+      // instead. A select is replaced by a scripted control, an autocomplete
+      // grows one beside it, and a checkbox or radio is drawn entirely by its
+      // label — the input behind it is either a styled box or, in the button
+      // styles, `sr-only` and 1px square. Anchoring a tooltip to that leaves it
+      // pointing at a corner of the control rather than at the control.
+      //
+      // The singular types belong here as much as the plural ones: the group
+      // path already ends up on a per-item `.form-type--checkbox` wrapper
+      // (see addInstance() in js/tooltip.ts), so this is the same anchor a
+      // checkbox gets inside `checkboxes`, not a new convention.
       if (isset($element['#type']) && in_array($element['#type'], [
+        'checkbox',
         'checkboxes',
+        'radio',
         'radios',
         'select',
         'entity_autocomplete',
