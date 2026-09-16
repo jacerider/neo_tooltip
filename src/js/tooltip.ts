@@ -90,7 +90,68 @@
     addInstance: function (el:HTMLElement, options:any) {
       options = Object.assign({}, this.getOptions(el), options);
       delete options.dir;
+      this.deferPointerEvents(options);
       this.instances.push(tippy(el, options));
+    },
+
+    /**
+     * Holds pointer events back until the tooltip has finished animating in.
+     *
+     * tippy turns them on at mount, which is the first frame of the enter
+     * transition, and the enter animation starts the tooltip closer to what it
+     * points at than where it ends up. With the configured `shift-away` that
+     * puts the arrow — whose hit area reaches about 8px past the box it hangs
+     * off — over the trigger for roughly the first 60ms of 300. The pointer
+     * lands on the tooltip rather than on the field, so `cursor: help` flicks
+     * to the default arrow and back before the tooltip has settled.
+     *
+     * Three things narrow this down, and each one is load-bearing.
+     *
+     * Only interactive instances are affected: tippy pins everything else to
+     * `none` for its whole life, which is why a plain text tooltip never shows
+     * this.
+     *
+     * Only animated ones are held back, because `onShown` is fired from the
+     * transition and does not run at all when `animation` is off — gating those
+     * would leave a tooltip that can never be clicked.
+     *
+     * And only hover-triggered ones, which is where the problem lives: the
+     * pointer is resting on the trigger with a cursor of its own while the
+     * tooltip animates across it. A click-triggered instance has neither half
+     * of that — the dropbutton menu is the case — and holding one back would
+     * only mean a menu that swallows a fast click on the item the user was
+     * already reaching for.
+     *
+     * Applied here rather than in getOptions() because these two hooks are the
+     * kind a caller overrides — the dropbutton attaches behaviours from its own
+     * onShown — and Object.assign replaces rather than chains. Wrapping after
+     * the merge keeps both: the caller's hook still runs, and no instance can
+     * opt out of the gate by accident.
+     */
+    deferPointerEvents: function (options:any) {
+      const callerMount = options.onMount;
+      const callerShown = options.onShown;
+      const gated = (instance:any) => instance.props.interactive
+        && instance.props.animation
+        && String(instance.props.trigger || '').includes('mouseenter');
+      options.onMount = (instance:any) => {
+        if (gated(instance)) {
+          instance.popper.style.pointerEvents = 'none';
+        }
+        if (callerMount) {
+          callerMount(instance);
+        }
+      };
+      options.onShown = (instance:any) => {
+        if (gated(instance)) {
+          // Empty rather than 'auto', which is what tippy itself restores it
+          // to — the value belongs to the stylesheet, not to this.
+          instance.popper.style.pointerEvents = '';
+        }
+        if (callerShown) {
+          callerShown(instance);
+        }
+      };
     },
 
     getOptions: (el: HTMLElement) => {
