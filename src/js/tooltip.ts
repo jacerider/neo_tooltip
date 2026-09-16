@@ -235,6 +235,19 @@
           options.getReferenceClientRect = () => anchor.getBoundingClientRect();
         }
       }
+      // A trigger inside something that scrolls cannot keep its tooltip beside
+      // it. tippy hangs an interactive popper off the reference's own parent,
+      // and a table wide enough to overflow gives its inner wrapper
+      // `overflow-x: auto; overflow-y: hidden` — which crops a tooltip opening
+      // above the header out of existence, and drags what is left sideways as
+      // the table scrolls. The body has no such container.
+      //
+      // Marked in the markup rather than detected here: the class that makes a
+      // table scroll is added by measurement after this runs, so there is
+      // nothing to detect at the point the decision has to be made.
+      if (el.hasAttribute('data-neo-tooltip-detach')) {
+        options.appendTo = () => document.body;
+      }
       const template = el.getAttribute('data-tippy-template');
       if (template && drupalSettings.neoTooltipTemplates && drupalSettings.neoTooltipTemplates[template]) {
         options['allowHTML'] = true;

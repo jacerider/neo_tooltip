@@ -9,6 +9,7 @@ use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\neo_tooltip\ElementPreRender;
 use Drupal\neo_tooltip\ElementProcess;
+use Drupal\neo_tooltip\Tooltip;
 
 /**
  * Implements hook_js_settings_alter().
@@ -100,6 +101,61 @@ function _neo_tooltip_group_help(array &$variables): void {
     // legend to an instance built on a form item further down.
     'target' => is_array($help) ? ($help['target'] ?? '') : '',
   ];
+}
+
+/**
+ * Implements hook_preprocess_field_multiple_value_form().
+ *
+ * A multi-value field names itself with a table header, not a label, and its
+ * description renders as loose text under the table — close enough to the next
+ * field to read as that field's help. It is the one field type left whose help
+ * does not look like every other field's.
+ *
+ * The header cell is what names this control, so the trigger belongs there, and
+ * ElementProcess never sees this element to say so: the description sits on a
+ * widget wrapper rather than on an input, so no process callback runs over it.
+ *
+ * Unlike a promoted trigger, this badge carries the tooltip itself. There is no
+ * control underneath holding an instance for it to join — `aria-describedby`
+ * here points at the table — so the badge is the whole trigger, which is also
+ * why it needs no id to be matched against.
+ */
+function neo_tooltip_preprocess_field_multiple_value_form(&$variables) {
+  if (empty($variables['multiple']) || empty($variables['description']['content'])) {
+    return;
+  }
+  $description = $variables['description']['content'];
+  if (!is_string($description) && !$description instanceof MarkupInterface) {
+    return;
+  }
+  // With the badge switched off there is nothing to hover — no label, no
+  // control of its own — so the description stays visible rather than becoming
+  // help nothing can reach.
+  if (!ElementProcess::showsHelpIcon() || !ElementProcess::descriptionBecomesTooltip($description)) {
+    return;
+  }
+
+  $attached = $variables['#attached'] ?? [];
+  $tooltip = new Tooltip($description, [
+    'delay' => '[300,100]',
+    // The description keeps rendering, hidden, and the table already points at
+    // it — so tippy must not announce it a second time.
+    'describedElsewhere' => TRUE,
+  ]);
+  $attributes = $tooltip->buildAttributes($attached);
+  $variables['#attached'] = $attached;
+
+  $title = $variables['element']['#title'] ?? NULL;
+  $variables['neo_tooltip_help'] = [
+    'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
+      ? t('More information about @label', ['@label' => $title])
+      : t('More information'),
+    'target' => '',
+    'attributes' => $attributes,
+  ];
+  // Hidden, not dropped: the table's `aria-describedby` points at this, and the
+  // reference has to keep resolving. See ElementProcess::processInput().
+  $variables['description']['display'] = 'invisible';
 }
 
 /**

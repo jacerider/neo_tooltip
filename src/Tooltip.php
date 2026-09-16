@@ -781,19 +781,45 @@ class Tooltip {
   public function applyTo(array &$build, $attributeProperty = '#attributes'):void {
     $build = $this->buildTrigger($build);
     $build[$attributeProperty] = $build[$attributeProperty] ?? [];
+    $attached = $build['#attached'] ?? [];
     $attribute = new Attribute($build[$attributeProperty]);
-    $attribute->merge($this->getAttributes());
+    $attribute->merge($this->buildAttributes($attached));
+    $build[$attributeProperty] = $attribute->toArray();
+    $build['#attached'] = $attached;
+  }
+
+  /**
+   * Builds the attributes and attachments a trigger needs, without a build.
+   *
+   * The other path, applyTo(), wants a renderable array to hang the tooltip
+   * off. A trigger that a template draws — the help badge in a table header is
+   * the case this exists for — has no such array: the markup is in Twig and
+   * only the attributes are wanted. Everything both paths have to get right
+   * lives here, so the `data-tippy-template` registration cannot drift:
+   * content carrying markup is passed by id through drupalSettings rather than
+   * through an attribute, and a trigger that missed that step would open an
+   * empty tooltip.
+   *
+   * @param array $attached
+   *   The attachments array to add to, by reference. Pass the template's own
+   *   `#attached` so the library and any template content travel with it.
+   *
+   * @return \Drupal\Core\Template\Attribute
+   *   The attributes to put on the trigger.
+   */
+  public function buildAttributes(array &$attached):Attribute {
+    $attribute = $this->getAttributes();
     if ($this->content && $this->contentAsTemplate) {
       $id = 'tooltip-' . uniqid();
       $attribute->setAttribute('data-tippy-template', $id);
-      $build['#attached']['drupalSettings']['neoTooltipTemplates'][$id] = is_array($this->content) ? \Drupal::service('renderer')->render($this->content) : $this->content;
+      $attached['drupalSettings']['neoTooltipTemplates'][$id] = is_array($this->content) ? \Drupal::service('renderer')->render($this->content) : $this->content;
     }
-    $build[$attributeProperty] = $attribute->toArray();
     foreach ($this->getAttachments() as $attachmentType => $attachments) {
       foreach ($attachments as $attachment) {
-        $build['#attached'][$attachmentType][] = $attachment;
+        $attached[$attachmentType][] = $attachment;
       }
     }
+    return $attribute;
   }
 
   /**

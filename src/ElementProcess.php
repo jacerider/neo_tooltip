@@ -268,7 +268,7 @@ class ElementProcess {
    * @return bool
    *   TRUE to convert, FALSE to leave the description where Drupal put it.
    */
-  protected static function descriptionBecomesTooltip(string|MarkupInterface $description): bool {
+  public static function descriptionBecomesTooltip(string|MarkupInterface $description): bool {
     $mode = static::settingValue('description_mode', static::DESCRIPTION_TOOLTIP);
     if ($mode === static::DESCRIPTION_INLINE) {
       return FALSE;
@@ -286,6 +286,21 @@ class ElementProcess {
     $text = strip_tags((string) $description);
     $text = trim(html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
     return mb_strlen($text) <= $max;
+  }
+
+  /**
+   * Whether converted descriptions get a visible help trigger.
+   *
+   * Asked by anything that has to decide between a tooltip and inline text
+   * without an input to fall back on. A field whose label is a table header has
+   * nothing to hover, so with the trigger switched off its description has to
+   * stay where it is or become unreachable.
+   *
+   * @return bool
+   *   TRUE when the badge is drawn.
+   */
+  public static function showsHelpIcon(): bool {
+    return (bool) static::settingValue('description_icon', TRUE);
   }
 
   /**
