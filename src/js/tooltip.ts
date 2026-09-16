@@ -122,15 +122,33 @@
             }
           }
         }
-        // The help icon beside the label opens the same tooltip as the field.
-        // It is a second triggerTarget rather than a second instance, so the
-        // two cannot end up showing the same sentence at once, and closing
-        // either closes it. Scoped to the form item so a label in one field
-        // never picks up the icon belonging to the next.
+        // Where a help icon exists it becomes the *only* trigger, replacing the
+        // field rather than joining it.
+        //
+        // A tooltip bound to the control fires while you are trying to use it:
+        // on hover as the pointer crosses the field, and on focus for every
+        // described field you tab through — covering the neighbouring row each
+        // time. On touch there is no hover at all, so the only thing that opens
+        // it is focus, which is the moment the on-screen keyboard appears and
+        // the viewport is at its smallest.
+        //
+        // It is also the half that is hard to make dismissable. WCAG 1.4.13
+        // wants hover/focus content dismissable without moving focus, and a
+        // tooltip anchored to the field it is describing cannot be closed
+        // without leaving the field. Anchored to a button, it opens and closes
+        // deliberately — see hideOnEsc below.
+        //
+        // Nothing is lost for assistive technology: the description is in the
+        // accessibility tree either way, via core's markup and the
+        // `aria-describedby` the control already carries.
+        //
+        // Scoped to the form item so one field never picks up the next field's
+        // icon, and skipped entirely when the icon is switched off, or the help
+        // would have no trigger at all.
         const item = el.closest('.js-form-item, .form-item');
         const help = item && item.querySelector<HTMLElement>('[data-neo-tooltip-help]');
         if (help) {
-          options.triggerTarget = (options.triggerTarget || [el]).concat([help]);
+          options.triggerTarget = [help];
         }
       }
       const template = el.getAttribute('data-tippy-template');
@@ -149,11 +167,29 @@
       if (el.getAttribute('data-tippy-described-elsewhere')) {
         options['aria'] = { content: null, expanded: null };
       }
+      // Dismissable without moving focus, which WCAG 1.4.13 asks of anything
+      // shown on hover or focus. Tippy's own `hideOnClick` covers the pointer;
+      // this is the keyboard half, and it is bound per instance rather than
+      // globally so a tooltip inside a dialog cannot swallow the Escape that
+      // was meant to close the dialog — it only listens while it is open.
       options.onShow = (instance:any) => {
         if (instance.props.content.length == 0) {
           return false;
         }
+        instance._neoEsc = (e:KeyboardEvent) => {
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            instance.hide();
+          }
+        };
+        document.addEventListener('keydown', instance._neoEsc, true);
         return true;
+      };
+      options.onHide = (instance:any) => {
+        if (instance._neoEsc) {
+          document.removeEventListener('keydown', instance._neoEsc, true);
+          instance._neoEsc = null;
+        }
       };
       return options;
     },
