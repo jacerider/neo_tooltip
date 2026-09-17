@@ -7,6 +7,7 @@
 
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
+use Drupal\Core\Template\Attribute;
 use Drupal\neo_tooltip\ElementPreRender;
 use Drupal\neo_tooltip\ElementProcess;
 use Drupal\neo_tooltip\Tooltip;
@@ -87,7 +88,8 @@ function neo_tooltip_preprocess_details(&$variables) {
  */
 function _neo_tooltip_group_help(array &$variables): void {
   $help = $variables['element']['#neo_tooltip_help'] ?? NULL;
-  if (empty($help)) {
+  $attributes = _neo_tooltip_group_own_description($variables, $help);
+  if (empty($help) && $attributes === NULL) {
     return;
   }
   $title = $variables['element']['#title'] ?? NULL;
@@ -100,7 +102,74 @@ function _neo_tooltip_group_help(array &$variables): void {
     // id stamped on that control, which is the only thing tying a badge in the
     // legend to an instance built on a form item further down.
     'target' => is_array($help) ? ($help['target'] ?? '') : '',
+    // Set only when this group's own description became the tooltip, in which
+    // case the badge is the whole trigger and carries it.
+    'attributes' => $attributes,
   ];
+}
+
+/**
+ * Turns a group's own description into a tooltip, if it has one to turn.
+ *
+ * A plain fieldset or details is not an input, so ElementProcess never walks it
+ * and its description stayed where Drupal put it — printed in full inside the
+ * legend, while every field under it had long since moved its help into a
+ * badge. On a form built mostly of groups that is most of the help on the page.
+ *
+ * A group that *is* an input — checkboxes, radios — is already handled by the
+ * process callback and arrives here with a marker, so it is left alone.
+ *
+ * @param array $variables
+ *   The template variables, by reference.
+ * @param mixed $help
+ *   The marker already on the element, if any.
+ *
+ * @return \Drupal\Core\Template\Attribute|null
+ *   Attributes making the badge its own trigger, or NULL when nothing was
+ *   converted.
+ */
+function _neo_tooltip_group_own_description(array &$variables, mixed $help): ?Attribute {
+  if (!empty($help) || empty($variables['element']['#description'])) {
+    return NULL;
+  }
+  // Already converted by something else. Without this a group whose badge is
+  // switched off would be converted a second time here and open two tooltips
+  // carrying the same sentence.
+  if (($variables['element']['#description_display'] ?? 'after') === 'invisible') {
+    return NULL;
+  }
+  $description = $variables['element']['#description'];
+  if (!is_string($description) && !$description instanceof MarkupInterface) {
+    return NULL;
+  }
+  // With the badge switched off a legend has nothing to hover, so the
+  // description stays where it is rather than becoming help nothing can reach.
+  if (!ElementProcess::showsHelpIcon() || !ElementProcess::descriptionBecomesTooltip($description)) {
+    return NULL;
+  }
+
+  $attached = $variables['#attached'] ?? [];
+  $tooltip = new Tooltip($description, [
+    'delay' => '[300,100]',
+    // The description keeps rendering, hidden, and the group's wrapper already
+    // points at it — so tippy must not announce it a second time.
+    'describedElsewhere' => TRUE,
+  ]);
+  $attributes = $tooltip->buildAttributes($attached);
+  $variables['#attached'] = $attached;
+
+  // Hidden, not dropped: the wrapper points at this with aria-describedby and
+  // the reference has to keep resolving. Core hands the two templates their
+  // description differently — a fieldset gets an attributes object that can be
+  // hidden in place, a details gets a bare string — so the hiding is done once
+  // per shape here rather than twice in Twig.
+  if (isset($variables['description']['attributes'])) {
+    $variables['description']['attributes']->addClass('visually-hidden');
+  }
+  else {
+    $variables['description_display'] = 'invisible';
+  }
+  return $attributes;
 }
 
 /**

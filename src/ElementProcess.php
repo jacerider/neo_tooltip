@@ -228,8 +228,12 @@ class ElementProcess {
     array_pop($parents);
     while ($parents) {
       $candidate = NestedArray::getValue($complete_form, $parents, $exists);
-      if ($exists && is_array($candidate) && static::rendersLegend($candidate)) {
-        return $parents;
+      if ($exists && is_array($candidate) && static::isGroup($candidate)) {
+        // The nearest group is the one that names this control. When it cannot
+        // host the trigger the walk stops here rather than carrying on upward:
+        // a grandparent's legend names a broader set of fields and would say
+        // nothing about this one.
+        return static::canHostTrigger($candidate) ? $parents : [];
       }
       array_pop($parents);
     }
@@ -247,12 +251,32 @@ class ElementProcess {
    *   The candidate ancestor.
    *
    * @return bool
-   *   TRUE when the element renders a visible legend or summary.
+   *   TRUE when the element is a group of either kind.
    */
-  protected static function rendersLegend(array $element): bool {
-    $isGroup = in_array($element['#type'] ?? NULL, ['fieldset', 'details'], TRUE)
-      || array_intersect(['fieldset', 'details'], $element['#theme_wrappers'] ?? []);
-    return $isGroup && static::rendersVisibleLabel($element);
+  protected static function isGroup(array $element): bool {
+    return in_array($element['#type'] ?? NULL, ['fieldset', 'details'], TRUE)
+      || (bool) array_intersect(['fieldset', 'details'], $element['#theme_wrappers'] ?? []);
+  }
+
+  /**
+   * Whether a group can take in a trigger handed up from a control inside it.
+   *
+   * @param array $element
+   *   The group.
+   *
+   * @return bool
+   *   TRUE when the group's legend is on screen and free to take one.
+   */
+  protected static function canHostTrigger(array $element): bool {
+    // A group carrying a description of its own draws a trigger for that one,
+    // and a legend cannot hold both: a reader has no way to tell which question
+    // mark belongs to the group and which to a field somewhere inside it. The
+    // group's own help wins, because the legend is the group's own name; the
+    // control keeps the tooltip on itself.
+    if (!empty($element['#description'])) {
+      return FALSE;
+    }
+    return static::rendersVisibleLabel($element);
   }
 
   /**

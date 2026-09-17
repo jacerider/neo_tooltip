@@ -171,6 +171,68 @@ class HelpTriggerPlacementTest extends KernelTestBase {
   }
 
   /**
+   * A group with a description of its own keeps its legend for that.
+   *
+   * One legend cannot hold two triggers — a reader has no way to tell which
+   * question mark belongs to the group and which to a field inside it — and the
+   * group's own help has the better claim, because the legend is its own name.
+   */
+  public function testGroupWithItsOwnDescriptionIsNotUsed(): void {
+    ['element' => $element, 'complete' => $complete] = $this->processInGroup(
+      ['#title' => ''],
+      ['#description' => 'What this whole group is for.'],
+    );
+
+    $this->assertFalse($element['#neo_tooltip_help']);
+    $this->assertArrayNotHasKey('#neo_tooltip_help', $complete['values']['prop']);
+    // The control keeps its tooltip, so the help is still reachable by hovering
+    // it; only the badge is given up.
+    $this->assertContains(
+      'use-neo-tooltip',
+      $element['#wrapper_attributes']['class'] ?? [],
+    );
+  }
+
+  /**
+   * The walk stops at the nearest group rather than climbing past it.
+   *
+   * A grandparent's legend names a broader set of fields, so a trigger drawn
+   * there would say nothing about the control that handed it up.
+   */
+  public function testWalkStopsAtTheNearestGroup(): void {
+    $child = [
+      '#type' => 'select',
+      '#id' => 'edit-prop-widget',
+      '#title' => '',
+      '#description' => 'How many cards sit on a desktop row.',
+      '#array_parents' => ['values', 'outer', 'inner', 'widget'],
+    ];
+    $complete = [
+      'values' => [
+        'outer' => [
+          '#type' => 'fieldset',
+          '#title' => 'Outer group',
+          'inner' => [
+            // Cannot host: its own legend is hidden.
+            '#type' => 'fieldset',
+            '#title' => 'Inner group',
+            '#title_display' => 'invisible',
+            'widget' => $child,
+          ],
+        ],
+      ],
+    ];
+    $formState = new FormState();
+    ElementProcess::processInput($child, $formState, $complete);
+
+    $this->assertArrayNotHasKey('#neo_tooltip_help', $complete['values']['outer']);
+    $this->assertArrayNotHasKey(
+      '#neo_tooltip_help',
+      $complete['values']['outer']['inner'],
+    );
+  }
+
+  /**
    * A plain container is not a group, so the walk passes through it.
    *
    * The nearest ancestor is not always the one that names the control — field
