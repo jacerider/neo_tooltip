@@ -182,25 +182,26 @@
         // Querying ancestors finds neither.
         const inside = (sel:string) => el.querySelector<HTMLElement>(sel);
         const closest = el.closest<HTMLElement>('a, input, button');
-        // The help icon is looked up from the form item, not from `el`. On a
-        // text field `el` is the input itself and the icon is its sibling in
-        // the label, so searching `el` would never find it.
-        const item = el.closest<HTMLElement>('.js-form-item, .form-item');
         // A badge inside a `visually-hidden` label is clipped to a 0x0 box.
         // Anchoring to that is worse than not anchoring at all: there is
         // nothing to hover, and the tooltip is measured against an empty rect
-        // in the page's top-left corner. ElementProcess hands those cases to
-        // the group legend instead, and this is the guard for any that reach
-        // here another way.
+        // in the page's top-left corner. ElementProcess draws no badge in that
+        // case, and this is the guard for any that reach here another way.
         const onScreen = (n:HTMLElement|null) =>
           n && !n.closest('.visually-hidden, .sr-only') ? n : null;
-        // A control with no visible label of its own has no badge beside it —
-        // its badge is drawn on the enclosing legend or summary, which is
-        // outside the form item entirely. The two ends carry the same id,
-        // because a group may hold more than one described control and
-        // position alone cannot say which badge belongs to which.
+        // The badge, found by the id both ends carry.
+        //
+        // Never by position. The badge is not always inside the form item —
+        // a control with no visible label of its own has its badge drawn on
+        // the enclosing legend — and the form item is not always this
+        // element's own: something with no form item at all, a submit button
+        // among them, sits inside the nearest ancestor that is one, so a
+        // search upward from the button lands in the enclosing group and
+        // claims that group's badge. Every Remove button in an Alchemist card
+        // list ended up anchored to the one question mark in the legend, and
+        // hovering it opened all of them at once.
         const helpId = el.getAttribute('data-neo-tooltip-help-id');
-        const promoted = helpId
+        const badge = helpId
           ? document.querySelector<HTMLElement>(`[data-neo-tooltip-help="${CSS.escape(helpId)}"]`)
           : null;
         // A single checkbox or radio, not a group of them. The group's tooltip
@@ -208,10 +209,8 @@
         const isBoolean = el.matches('.form-type--checkbox, .form-type--radio, .form-type--boolean, .js-form-type-checkbox, .js-form-type-radio');
         const isGroup = el.matches('.form-composite, .fieldgroup, .form-type--checkboxes, .form-type--radios');
         const anchor =
-          // A help icon on the group that names this control.
-          onScreen(promoted)
-          // A help icon beside the label, where one is rendered.
-          || onScreen(item && item.querySelector<HTMLElement>('[data-neo-tooltip-help]'))
+          // The help badge for this element, wherever it was drawn.
+          onScreen(badge)
           // The control a wrapper stands in for, most specific first.
           || inside('.ts-wrapper')
           // A checkbox or radio is drawn by a label. Which label depends on the

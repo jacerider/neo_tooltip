@@ -45,10 +45,10 @@ function neo_tooltip_preprocess_form_element(&$variables) {
       'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
         ? t('More information about @label', ['@label' => $title])
         : t('More information'),
-      // Empty because this trigger sits with the control it describes, so it is
-      // found by position and needs no id to be matched against. The key is
-      // still set, because one template draws every trigger and reads it.
-      'target' => '',
+      // The element this trigger opens. Always set, never inferred from where
+      // the badge sits: an element with no form item of its own would
+      // otherwise be matched with the badge of the group around it.
+      'target' => $variables['element']['#id'] ?? '',
     ];
   }
 }
@@ -97,15 +97,47 @@ function _neo_tooltip_group_help(array &$variables): void {
     'label' => (is_string($title) || $title instanceof MarkupInterface) && trim((string) $title) !== ''
       ? t('More information about @label', ['@label' => $title])
       : t('More information'),
-    // Set when the trigger was handed up by a control inside this group rather
-    // than describing the group itself. js/tooltip.ts matches it against the
-    // id stamped on that control, which is the only thing tying a badge in the
-    // legend to an instance built on a form item further down.
-    'target' => is_array($help) ? ($help['target'] ?? '') : '',
+    // What this trigger opens. A promoted marker names the control that handed
+    // it up; otherwise the group itself, whose own tooltip it is. Empty only
+    // when the badge carries the tooltip and has nothing to match against.
+    'target' => _neo_tooltip_group_target($variables, $help, $attributes),
     // Set only when this group's own description became the tooltip, in which
     // case the badge is the whole trigger and carries it.
     'attributes' => $attributes,
   ];
+}
+
+/**
+ * The id a group's trigger opens.
+ *
+ * @param array $variables
+ *   The template variables.
+ * @param mixed $help
+ *   The marker on the element, if any.
+ * @param \Drupal\Core\Template\Attribute|null $attributes
+ *   Set when the badge carries the tooltip itself.
+ *
+ * @return string
+ *   The element id, or an empty string when nothing needs matching.
+ */
+function _neo_tooltip_group_target(array $variables, mixed $help, ?Attribute $attributes): string {
+  // The badge is its own trigger, so there is no instance elsewhere to find.
+  if ($attributes !== NULL) {
+    return '';
+  }
+  // Handed up by a control inside this group: that control's instance is the
+  // one to open.
+  if (is_array($help)) {
+    return $help['target'] ?? '';
+  }
+  // The group's own tooltip, built by the process callback because the group is
+  // an input — a checkboxes or radios set.
+  //
+  // `#id`, not the rendered `#attributes['id']`: a composite element is given
+  // a wrapper id of its own by CompositeFormElementTrait, and matching against
+  // that would look right and find nothing, because the link on the other end
+  // is stamped from `#id`.
+  return $variables['element']['#id'] ?? '';
 }
 
 /**

@@ -160,6 +160,24 @@ class ElementProcess {
    *   an ancestor marked here is the one that renders.
    */
   protected static function placeHelpTrigger(array &$element, string $attributesProperty, array &$complete_form): void {
+    // FormBuilder assigns `#id` before it runs process callbacks, so this holds
+    // on any element reached through a form. Without one there is nothing to
+    // tie a badge to, and a badge that cannot be tied to its instance is a
+    // question mark that opens nothing — so none is drawn.
+    if (empty($element['#id'])) {
+      $element['#neo_tooltip_help'] = FALSE;
+      return;
+    }
+    // The badge and the instance are matched by this id wherever the badge is
+    // drawn — in this element's own label, or on the legend of the group that
+    // names it. Position cannot do the matching. An element with no form item
+    // of its own, a submit button among them, sits inside the nearest ancestor
+    // that *is* one, so a search upward from the button lands in the enclosing
+    // group and claims that group's badge: every Remove button in an Alchemist
+    // card list ended up anchored to the one question mark in the legend, and
+    // hovering it opened all of them at once.
+    $element['#' . $attributesProperty]['data-neo-tooltip-help-id'] = $element['#id'];
+
     if (static::rendersVisibleLabel($element)) {
       return;
     }
@@ -168,26 +186,22 @@ class ElementProcess {
     // with it.
     $element['#neo_tooltip_help'] = FALSE;
 
-    // FormBuilder assigns `#id` before it runs process callbacks, so this holds
-    // on any element reached through a form. An element processed outside one
-    // has nothing to tie the two ends together with, and keeps the hover-only
-    // tooltip it would have had anyway.
-    $path = empty($element['#id']) ? [] : static::findLabellingAncestor($element, $complete_form);
-    if (!$path) {
-      // Nothing visible names this control, so there is nowhere to hang a
-      // trigger. The description is still announced and still opens on hover;
-      // only the badge is given up.
-      return;
+    $path = static::findLabellingAncestor($element, $complete_form);
+    if ($path) {
+      $ancestor = &NestedArray::getValue($complete_form, $path);
+      // First one wins. A group already drawing a badge — its own description,
+      // or an earlier sibling's — keeps it, rather than growing a row of
+      // identical question marks in one legend.
+      if (empty($ancestor['#neo_tooltip_help'])) {
+        $ancestor['#neo_tooltip_help'] = ['target' => $element['#id']];
+        return;
+      }
     }
-    $ancestor = &NestedArray::getValue($complete_form, $path);
-    // First one wins. A group already drawing a badge — its own description, or
-    // an earlier sibling's — keeps it, rather than growing a row of identical
-    // question marks in one legend.
-    if (!empty($ancestor['#neo_tooltip_help'])) {
-      return;
-    }
-    $ancestor['#neo_tooltip_help'] = ['target' => $element['#id']];
-    $element['#' . $attributesProperty]['data-neo-tooltip-help-id'] = $element['#id'];
+    // No badge will be drawn for this element: either nothing visible names it,
+    // or the group that does is already showing one. Take the link back off —
+    // left behind it names a badge that does not exist. The description is
+    // still announced and the tooltip still opens on hover.
+    unset($element['#' . $attributesProperty]['data-neo-tooltip-help-id']);
   }
 
   /**

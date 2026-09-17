@@ -96,9 +96,11 @@ class HelpTriggerPlacementTest extends KernelTestBase {
     $this->assertTrue($element['#neo_tooltip_help']);
     // The group is left alone, or the same sentence would get two triggers.
     $this->assertArrayNotHasKey('#neo_tooltip_help', $complete['values']['prop']);
-    $this->assertArrayNotHasKey(
-      'data-neo-tooltip-help-id',
-      $element['#wrapper_attributes'],
+    // The link is stamped whether the badge sits in this element's own label or
+    // on a group's legend: the badge is always found by id, never by position.
+    $this->assertSame(
+      'edit-prop-widget',
+      $element['#wrapper_attributes']['data-neo-tooltip-help-id'],
     );
   }
 
@@ -310,7 +312,8 @@ class HelpTriggerPlacementTest extends KernelTestBase {
       ['target' => 'edit-prop-first'],
       $complete['values']['prop']['#neo_tooltip_help'],
     );
-    // The loser gets no badge anywhere, but keeps its tooltip and its
+    // The loser gets no badge anywhere, so its link is taken back off rather
+    // than left naming one that does not exist. It keeps its tooltip and its
     // announced description.
     $this->assertFalse($secondResult['#neo_tooltip_help']);
     $this->assertArrayNotHasKey(
