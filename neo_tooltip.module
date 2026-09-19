@@ -193,9 +193,13 @@ function _neo_tooltip_group_own_description(array &$variables, mixed $help): ?At
   // Hidden, not dropped: the wrapper points at this with aria-describedby and
   // the reference has to keep resolving. Core hands the two templates their
   // description differently — a fieldset gets an attributes object that can be
-  // hidden in place, a details gets a bare string — so the hiding is done once
-  // per shape here rather than twice in Twig.
-  if (isset($variables['description']['attributes'])) {
+  // hidden in place, a details gets `#description` as it was set — a string, or
+  // just as often a TranslatableMarkup — so the hiding is done once per shape
+  // here rather than twice in Twig.
+  //
+  // is_array() first: probing a markup object with `isset($x['attributes'])`
+  // is not a quiet FALSE, it is a fatal "cannot use object as array".
+  if (is_array($variables['description'] ?? NULL) && isset($variables['description']['attributes'])) {
     $variables['description']['attributes']->addClass('visually-hidden');
   }
   else {
