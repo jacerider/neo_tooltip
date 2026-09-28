@@ -244,7 +244,18 @@
       // Marked in the markup rather than detected here: the class that makes a
       // table scroll is added by measurement after this runs, so there is
       // nothing to detect at the point the decision has to be made.
-      if (el.hasAttribute('data-neo-tooltip-detach')) {
+      //
+      // A trigger inside a link goes to the body too. Hung off its parent, the
+      // tooltip would become part of the link: a click anywhere on it follows
+      // the link, and it takes on the link's type. The case is a horizontal
+      // tab, whose title field_group copies from the pane's summary, help
+      // badge included. There the tooltip was also squeezed to the width of
+      // the tab, and the tab list's stacking context held it below the page
+      // title it opens over.
+      //
+      // The parent's link, not the trigger's own: a link that carries a
+      // tooltip is not inside one.
+      if (el.hasAttribute('data-neo-tooltip-detach') || el.parentElement?.closest('a[href]')) {
         options.appendTo = () => document.body;
       }
       const template = el.getAttribute('data-tippy-template');
