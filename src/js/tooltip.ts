@@ -91,7 +91,53 @@
       options = Object.assign({}, this.getOptions(el), options);
       delete options.dir;
       this.deferPointerEvents(options);
+      this.keepClearOfBars(el, options);
       this.instances.push(tippy(el, options));
+    },
+
+    /**
+     * Keeps a tooltip out from under the bars fixed along the window's edges.
+     *
+     * tippy keeps a tooltip inside the window, a few pixels in from each edge,
+     * but a toolbar covers the window's edge. A tooltip for something near the
+     * left of the page, wider than the room to its left, was slid in to the
+     * window's edge and ended up beneath the admin toolbar's rail. It cannot
+     * rise above the toolbar from inside the page, and should not cover it
+     * either, so the edges it keeps inside move in by the space each bar
+     * takes. `flip` gets the same edges, so a tooltip with no room between a
+     * field and the top bar opens beneath the field instead.
+     *
+     * That space is what Drupal.displace measures for every element marked
+     * with a `data-offset-*` attribute, neo_toolbar's bars and core's among
+     * them, so no bar is named here. It is read on every placement rather
+     * than once: popper copies a padding object's sides each time it
+     * positions (Object.assign, which runs the getters), and a bar can open,
+     * close or change size while a tooltip is up.
+     *
+     * A tooltip on a bar itself is left alone, since it opens from inside the
+     * space being kept clear. The modifiers go before the caller's own, so a
+     * caller that sets its own padding still wins.
+     */
+    keepClearOfBars: function (el:HTMLElement, options:any) {
+      if (el.closest('[data-offset-top], [data-offset-right], [data-offset-bottom], [data-offset-left]')) {
+        return;
+      }
+      const edges = (gap:number) => {
+        const offsets = () => Drupal.displace?.offsets;
+        return {
+          get top() { return (offsets()?.top || 0) + gap; },
+          get right() { return (offsets()?.right || 0) + gap; },
+          get bottom() { return (offsets()?.bottom || 0) + gap; },
+          get left() { return (offsets()?.left || 0) + gap; },
+        };
+      };
+      options.popperOptions = Object.assign({}, options.popperOptions, {
+        modifiers: [
+          { name: 'preventOverflow', options: { padding: edges(5) } },
+          { name: 'flip', options: { padding: edges(5) } },
+          ...(options.popperOptions?.modifiers || []),
+        ],
+      });
     },
 
     /**
