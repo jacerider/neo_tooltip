@@ -301,7 +301,13 @@
       //
       // The parent's link, not the trigger's own: a link that carries a
       // tooltip is not inside one.
-      if (el.hasAttribute('data-neo-tooltip-detach') || el.parentElement?.closest('a[href]')) {
+      //
+      // And a trigger inside a modal: its content pane scrolls, so it crops a
+      // tooltip at the panel's edge just as the table does. A side panel is
+      // narrow enough that a help tooltip on its first field ran straight off
+      // it. Closing the modal detaches its behaviors, which destroys the
+      // instance, so nothing is left behind on the body.
+      if (el.hasAttribute('data-neo-tooltip-detach') || el.parentElement?.closest('a[href]') || el.closest('.neo-modal')) {
         options.appendTo = () => document.body;
       }
       const template = el.getAttribute('data-tippy-template');
